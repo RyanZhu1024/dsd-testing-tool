@@ -1,0 +1,14 @@
+{
+  "name": "dsd-serverapp",
+  "version": "1.0.0",
+  "author": "ryan",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^0.15.3",
+    "express": "^4.14.0",
+    "firebase": "^3.6.6"
+  }
+}
