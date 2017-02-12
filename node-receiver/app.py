@@ -12,7 +12,7 @@ def kill_process():
     kill_status = kill_a_process(pid)
     if kill_status:
         return "success"
-    return "Failed"
+    return "failed"
 
 
 def kill_a_process(pid):
@@ -25,7 +25,7 @@ def kill_a_process(pid):
 
 
 def send_self_info():
-    r = requests.get("http://localhost:4000/api/v1/py-info", {"port": 5000})
+    r = requests.get("http://localhost:4000/api/v1/py-info", {"port": 5000, "nodeId": "-KcoRTX-G-bGRtZVyL8w"})
     print(r)
 
 if __name__ == "__main__":
