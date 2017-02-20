@@ -3,6 +3,7 @@ import Axios from "axios";
 import * as firebase from "firebase";
 import ipaddr from 'ipaddr.js';
 import bodyParser from 'body-parser';
+import moment from 'moment';
 
 let app = Express();
 
@@ -105,29 +106,66 @@ app.param('taskId', (req, res, next, taskId) => {
 });
 
 app.param('actionId', (req, res, next, actionId) => {
-  database.ref(`tasks/${req.task.id}/actions/${actionId}`).once('value').then((snapshot) => {
-    let action = snapshot.val();
-    action.id = actionId;
-    console.log(action);
-    req.action = action;
-    next();
-  })
+  req.actionRef = database.ref(`actions/${actionId}`);
+  next();
 });
 
-app.get('/api/v1/tasks/:taskId/actions/:actionId', (req, res) => {
-
+app.get('/api/v1/actions/:actionId', (req, res) => {
+  req.actionRef.once('value').then((snapshot) => {
+    let action = snapshot.val();
+    res.json({
+      success: 'ok',
+      data: action
+    });
+  })
 });
 
 app.post('/api/v1/actions', (req, res) => {
   let action = database.ref('actions').push();
-  let obj = action.set({
-    id: action.id,
+  action.set({
     name: req.body.name,
     request: req.body.request,
-    verifyActionId: req.body.verifyActionId
-  });
-  console.log(obj);
-  res.send('ok');
+    verifyActionId: req.body.verifyActionId,
+    createdAt: moment().format('MMMM Do YYYY, h:mm:ss a')
+  }).then(() => {
+    res.json({success: 'ok'})
+  })
+});
+
+app.get('/api/v1/actions', (req, res) => {
+  database.ref('actions').once('value', (snapshot) => {
+    let actions = [];
+    snapshot.forEach((child) => {
+      console.log(`${child.key}`);
+      if (!child.val().deleted) {
+        actions.push({id: child.key, value: child.val()})
+      }
+    });
+    res.json({
+      success: 'ok',
+      data: actions
+    });
+  })
+});
+
+app.put('/api/v1/actions/:actionId', (req, res) => {
+  req.actionRef.update({
+    name: req.body.name,
+    request: req.body.request,
+    verifyActionId: req.body.verifyActionId,
+    modifiedAt: moment().format('MMMM Do YYYY, h:mm:ss a')
+  }).then(() => {
+    res.json({success: 'ok'})
+  })
+});
+
+app.delete('/api/v1/actions/:actionId', (req, res) => {
+  req.actionRef.update({
+    modifiedAt: moment().format('MMMM Do YYYY, h:mm:ss a'),
+    deleted: true
+  }).then(() => {
+    res.json({success: 'ok'})
+  })
 });
 
 app.listen(4000);
