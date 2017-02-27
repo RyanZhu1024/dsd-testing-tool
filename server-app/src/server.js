@@ -1,5 +1,5 @@
 import Express from "express";
-import Axios from "axios";
+import axios from "axios";
 import * as firebase from "firebase";
 import ipaddr from 'ipaddr.js';
 import bodyParser from 'body-parser';
@@ -70,24 +70,36 @@ app.get('/api/v1/py-info', (req, res) => {
   res.send('py port sent');
 });
 
+const killProcess = (nodeId, callback, errCallback) => {
+  return database.ref('nodes/' + nodeId).once('value').then((snapshot) => {
+    let node = snapshot.val();
+    console.log(node);
+    return axios.get(`http://${node.ip}:${node.pyPort}/kill-process?pid=${node.pid}`).then((response) => {
+      if (!callback) {
+        callback(response);
+      }
+    }).catch((err) => {
+      if (!errCallback) {
+        errCallback(err);
+      }
+    })
+  })
+};
+
 app.get('/api/v1/kill-process', (req, res) => {
   if (!req.query.nodeId) {
     res.send('must provide a nodeId');
   }
-  database.ref('nodes/' + req.query.nodeId).once('value').then((snapshot) => {
-    let node = snapshot.val();
-    console.log(node);
-    Axios.get(`http://${node.ip}:${node.pyPort}/kill-process?pid=${node.pid}`).then((response) => {
-      if (response.data === 'success') {
-        res.send("kill succeeded")
-      } else {
-        res.send("kill failed from python receiver")
-      }
-    }).catch((err) => {
-      console.log(err);
-      res.send("kill failed due to internal error of node server")
-    })
-  })
+  killProcess(req.query.nodeId,(response) => {
+    if (response.data === 'success') {
+      res.send("kill succeeded")
+    } else {
+      res.send("kill failed from python receiver")
+    }
+  }, (err) => {
+    console.log(err);
+    res.send("kill failed due to internal error of node server")
+  });
 });
 
 app.get('/api/v1/generate-node-id', (req, res) => {
@@ -125,7 +137,10 @@ app.post('/api/v1/actions', (req, res) => {
   action.set({
     name: req.body.name,
     request: req.body.request,
-    verifyActionId: req.body.verifyActionId,
+    responseExpected: req.body.responseExpected,
+    repeat: req.body.repeat,
+    killProcess: req.body.killProcess,
+    delay: req.body.delay,
     createdAt: moment().format('MMMM Do YYYY, h:mm:ss a')
   }).then(() => {
     res.json({success: 'ok'})
@@ -152,8 +167,11 @@ app.put('/api/v1/actions/:actionId', (req, res) => {
   req.actionRef.update({
     name: req.body.name,
     request: req.body.request,
-    verifyActionId: req.body.verifyActionId,
-    modifiedAt: moment().format('MMMM Do YYYY, h:mm:ss a')
+    responseExpected: req.body.responseExpected,
+    repeat: req.body.repeat,
+    killProcess: req.body.killProcess,
+    delay: req.body.delay,
+    createdAt: moment().format('MMMM Do YYYY, h:mm:ss a')
   }).then(() => {
     res.json({success: 'ok'})
   })
@@ -167,5 +185,86 @@ app.delete('/api/v1/actions/:actionId', (req, res) => {
     res.json({success: 'ok'})
   })
 });
+
+app.get('/api/v1/tasks/:taskId/run', (req, res) => {
+  killProcessFromTask(task).then(() => {
+    let caseActions = req.task.caseActions;
+    let actionsProm = caseActions.actions.map((actionId) => {
+      return database.ref(`actions/${actionId}`).once('value').then((snapshot) => {
+        let action = snapshot.val();
+        action.id = actionId;
+        return action;
+      })
+    });
+    if (caseActions.way == 1) { //concurrently
+      Promise.all(actionsProm).then((actions) => {
+        let actionArr = [];
+        actions.map((action) => {
+          for (let cnt = 0; cnt < action.repeat; cnt++) {
+            actionArr.push(action);
+          }
+        });
+        axios.all(actionArr.map((act) => {
+          makeRequest(act);
+        })).then(axios.spread((responses) => {
+          console.log(responses);
+        }));
+      })
+    } else if (caseActions.way == 2) { // sequentially
+      Promise.all(actionsProm).then((actions) => {
+        actions.map((action) => {
+          executeSingleAction(action);
+        })
+      });
+    }
+  });
+  res.json({success: 'ok'})
+});
+
+const handleKillProcessResult = (taskId, res) => {
+  database.ref(`tasks/${taskId}/killProcessResult`).push({
+    killProcessResult: {
+      status: res.status,
+      data: res.data
+    }
+  })
+};
+
+const killProcessFromTask = (task) => {
+  let resultsProm = [];
+  if (!task.killProcess) {
+    resultsProm = task.killProcess.nodeIds.map((nodeId) => {
+        return killProcess(nodeId, (response) => {
+          handleKillProcessResult(task.id, response);
+        }, (err) => {
+          handleKillProcessResult(task.id, err.response)
+        })
+    });
+  }
+  return Promise.all(resultsProm);
+};
+
+const executeSingleAction = (action) => {
+  for (let cnt = 1; cnt <= action.repeat; cnt++) {
+    setTimeout(() => {
+      makeRequest(action)
+    }, action.delay * cnt)
+  }
+};
+
+const makeRequest = (action) => {
+  return axios(action.request).then((res) => {
+    handleActionRes(res, action.id);
+  }).catch((err) => {
+    handleActionRes(err.response, action.id);
+  })
+};
+
+const handleActionRes = (res, actionId) => {
+  database.ref(`actions/${actionId}/responses`).push({
+      status: res.status,
+      data: res.data
+  });
+};
 
 app.listen(4000);
