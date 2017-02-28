@@ -5,6 +5,11 @@ import ipaddr from 'ipaddr.js';
 import bodyParser from 'body-parser';
 import moment from 'moment';
 
+const TaskResScope = {
+  responses: "responses",
+  verifyResponses: "verifyResponses"
+};
+
 let app = Express();
 
 let config = {
@@ -113,7 +118,7 @@ app.param('taskId', (req, res, next, taskId) => {
   database.ref(`tasks/${taskId}`).once('value').then((snapshot) => {
     let task = snapshot.val();
     task.id = taskId;
-    console.log("current task: " + JSON.stringify(task));
+    console.log(`current task: ${taskId}`);
     req.task = task;
     next();
   })
@@ -182,17 +187,26 @@ app.post('/api/v1/tasks', (req, res) => {
   })
 });
 
+app.get('/api/v1/tasks/:taskId/verify', (req, res) => {
+  if (req.task.verifyActions) {
+    let verifyActions = req.task.verifyActions;
+    let actionsProm = getActionsProm(verifyActions, req);
+    Promise.all(actionsProm).then((actions) => {
+      axios.all(actions.map((action) => {
+        return runActionWithTimeout(action);
+      })).then((responses) => {
+        handleTaskRes(responses, req.task, TaskResScope.verifyResponses);
+      })
+    })
+  }
+  res.json({success: 'ok'});
+});
+
+
 app.get('/api/v1/tasks/:taskId/run', (req, res) => {
   killProcessFromTask(req.task).then(() => {
     let caseActions = req.task.caseActions;
-    let actionsProm = caseActions.actions.map((actionId) => {
-      return database.ref(`actions/${actionId}`).once('value').then((snapshot) => {
-        let action = snapshot.val();
-        action.id = actionId;
-        action.taskId = req.task.id;
-        return action;
-      })
-    });
+    let actionsProm = getActionsProm(caseActions.actions, req);
     if (caseActions.way == 1) { //concurrently
       console.log("running concurrently");
       Promise.all(actionsProm).then((actions) => {
@@ -205,7 +219,7 @@ app.get('/api/v1/tasks/:taskId/run', (req, res) => {
         console.log("start running: " + actionArr);
         axios.all(actionArr).then((responses) => {
           console.log("All actions completed " + responses.length);
-          handleTaskRes(responses, req.task);
+          handleTaskRes(responses, req.task, TaskResScope.responses);
         });
       })
     } else if (caseActions.way == 2) { // sequentially
@@ -221,13 +235,24 @@ app.get('/api/v1/tasks/:taskId/run', (req, res) => {
         }, Promise.resolve([]));
         allActs.then((responses) => {
           console.log("complete all actions");
-          handleTaskRes(responses, req.task);
+          handleTaskRes(responses, req.task, TaskResScope.responses);
         })
       });
     }
   });
   res.json({success: 'ok'})
 });
+
+const getActionsProm = (actionIds, req) => {
+  return actionIds.map((actionId) => {
+    return database.ref(`actions/${actionId}`).once('value').then((snapshot) => {
+      let action = snapshot.val();
+      action.id = actionId;
+      action.taskId = req.task.id;
+      return action;
+    })
+  });
+};
 
 const handleKillProcessResult = (taskId, res, nodeId) => {
   database.ref(`tasks/${taskId}/killProcessResult`).push({
@@ -290,7 +315,7 @@ const makeRequest = (action) => {
   })
 };
 
-const handleTaskRes = (responses, task) => {
+const handleTaskRes = (responses, task, scope) => {
   let results = [];
   responses.map((response) => {
     results.push({
@@ -300,7 +325,7 @@ const handleTaskRes = (responses, task) => {
       completedAt: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
   });
-  database.ref(`tasks/${task.id}/responses`).push({
+  database.ref(`tasks/${task.id}/${scope}`).push({
     results: results,
     completedAt: moment().format('MMMM Do YYYY, h:mm:ss a'),
   });
