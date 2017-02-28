@@ -199,12 +199,12 @@ app.get('/api/v1/tasks/:taskId/run', (req, res) => {
         let actionArr = [];
         actions.map((action) => {
           for (let cnt = 0; cnt < action.repeat; cnt++) {
-            actionArr.push(makeRequest(action));
+            actionArr.push(runActionWithTimeout(action));
           }
         });
         console.log("start running: " + actionArr);
         axios.all(actionArr).then((responses) => {
-          console.log("All actions completed " + responses);
+          console.log("All actions completed " + responses.length);
           handleTaskRes(responses, req.task);
         });
       })
@@ -252,7 +252,7 @@ const killProcessFromTask = (task) => {
 };
 
 let mm = 0;
-const runActionSeq = (action) => {
+const runActionWithTimeout = (action) => {
   return new Promise(resolve => {
     setTimeout(() => {
       makeRequest(action).then((response) => {
@@ -266,7 +266,7 @@ const runActionSeq = (action) => {
 const executeSingleAction = (action) => {
   let promises = Array.from({length: action.repeat}).reduce((acc) => {
     return acc.then((res) => {
-      return runActionSeq(action).then((response) => {
+      return runActionWithTimeout(action).then((response) => {
         res.push(response);
         return res;
       });
