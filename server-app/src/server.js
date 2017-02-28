@@ -19,14 +19,14 @@ firebase.initializeApp(config);
 let database = firebase.database();
 
 let addNodeInfo = (nodeInfo) => {
-  database.ref("nodes/" + nodeInfo.nodeId).update({
+  return database.ref("nodes/" + nodeInfo.nodeId).update({
     pid: nodeInfo.pid,
     nodePort: nodeInfo.port
   })
 };
 
 let addPyInfo = (pyInfo) => {
-  database.ref("nodes/" + pyInfo.nodeId).update({
+  return database.ref("nodes/" + pyInfo.nodeId).update({
     pyPort: pyInfo.port,
     ip: pyInfo.ip
   })
@@ -46,8 +46,9 @@ app.get('/api/v1/node-info', (req, res) => {
     nodeId: req.query.nodeId,
     port: req.query.port,
     pid: req.query.pid
+  }).then(() => {
+    res.send('pid sent');
   });
-  res.send('pid sent');
 });
 
 let convertIp = (ip) => {
@@ -66,8 +67,9 @@ app.get('/api/v1/py-info', (req, res) => {
     nodeId: req.query.nodeId,
     ip: convertIp(req.ip),
     port: req.query.port
+  }).then(() => {
+    res.send('py port sent');
   });
-  res.send('py port sent');
 });
 
 const killProcess = (nodeId, callback, errCallback) => {
@@ -75,11 +77,11 @@ const killProcess = (nodeId, callback, errCallback) => {
     let node = snapshot.val();
     console.log(node);
     return axios.get(`http://${node.ip}:${node.pyPort}/kill-process?pid=${node.pid}`).then((response) => {
-      if (!callback) {
+      if (callback) {
         callback(response);
       }
     }).catch((err) => {
-      if (!errCallback) {
+      if (errCallback) {
         errCallback(err);
       }
     })
@@ -111,7 +113,7 @@ app.param('taskId', (req, res, next, taskId) => {
   database.ref(`tasks/${taskId}`).once('value').then((snapshot) => {
     let task = snapshot.val();
     task.id = taskId;
-    console.log(task);
+    console.log("current task: " + JSON.stringify(task));
     req.task = task;
     next();
   })
@@ -134,15 +136,8 @@ app.get('/api/v1/actions/:actionId', (req, res) => {
 
 app.post('/api/v1/actions', (req, res) => {
   let action = database.ref('actions').push();
-  action.set({
-    name: req.body.name,
-    request: req.body.request,
-    responseExpected: req.body.responseExpected,
-    repeat: req.body.repeat,
-    killProcess: req.body.killProcess,
-    delay: req.body.delay,
-    createdAt: moment().format('MMMM Do YYYY, h:mm:ss a')
-  }).then(() => {
+  req.body.createdAt = moment().format('MMMM Do YYYY, h:mm:ss a');
+  action.set(req.body).then(() => {
     res.json({success: 'ok'})
   })
 });
@@ -164,15 +159,8 @@ app.get('/api/v1/actions', (req, res) => {
 });
 
 app.put('/api/v1/actions/:actionId', (req, res) => {
-  req.actionRef.update({
-    name: req.body.name,
-    request: req.body.request,
-    responseExpected: req.body.responseExpected,
-    repeat: req.body.repeat,
-    killProcess: req.body.killProcess,
-    delay: req.body.delay,
-    createdAt: moment().format('MMMM Do YYYY, h:mm:ss a')
-  }).then(() => {
+  req.body.modifiedAt = moment().format('MMMM Do YYYY, h:mm:ss a');
+  req.actionRef.update(req.body).then(() => {
     res.json({success: 'ok'})
   })
 });
@@ -186,34 +174,54 @@ app.delete('/api/v1/actions/:actionId', (req, res) => {
   })
 });
 
+app.post('/api/v1/tasks', (req, res) => {
+  let task = database.ref('tasks').push();
+  req.body.createdAt = moment().format('MMMM Do YYYY, h:mm:ss a');
+  task.set(req.body).then(() => {
+    res.json({success: 'ok'});
+  })
+});
+
 app.get('/api/v1/tasks/:taskId/run', (req, res) => {
-  killProcessFromTask(task).then(() => {
+  killProcessFromTask(req.task).then(() => {
     let caseActions = req.task.caseActions;
     let actionsProm = caseActions.actions.map((actionId) => {
       return database.ref(`actions/${actionId}`).once('value').then((snapshot) => {
         let action = snapshot.val();
         action.id = actionId;
+        action.taskId = req.task.id;
         return action;
       })
     });
     if (caseActions.way == 1) { //concurrently
+      console.log("running concurrently");
       Promise.all(actionsProm).then((actions) => {
         let actionArr = [];
         actions.map((action) => {
           for (let cnt = 0; cnt < action.repeat; cnt++) {
-            actionArr.push(action);
+            actionArr.push(makeRequest(action));
           }
         });
-        axios.all(actionArr.map((act) => {
-          makeRequest(act);
-        })).then(axios.spread((responses) => {
-          console.log(responses);
-        }));
+        console.log("start running: " + actionArr);
+        axios.all(actionArr).then((responses) => {
+          console.log("All actions completed " + responses);
+          handleTaskRes(responses, req.task);
+        });
       })
     } else if (caseActions.way == 2) { // sequentially
+      console.log("running sequentially");
       Promise.all(actionsProm).then((actions) => {
-        actions.map((action) => {
-          executeSingleAction(action);
+        let allActs = actions.reduce((acc, curAct) => {
+          return acc.then((res) => {
+            return executeSingleAction(curAct).then((responses) => {
+              console.log("in root function " + responses);
+              return res.concat(responses);
+            })
+          })
+        }, Promise.resolve([]));
+        allActs.then((responses) => {
+          console.log("complete all actions");
+          handleTaskRes(responses, req.task);
         })
       });
     }
@@ -221,49 +229,80 @@ app.get('/api/v1/tasks/:taskId/run', (req, res) => {
   res.json({success: 'ok'})
 });
 
-const handleKillProcessResult = (taskId, res) => {
+const handleKillProcessResult = (taskId, res, nodeId) => {
   database.ref(`tasks/${taskId}/killProcessResult`).push({
-    killProcessResult: {
-      status: res.status,
-      data: res.data
-    }
+    status: res.status,
+    data: res.data,
+    nodeId: nodeId
   })
 };
 
 const killProcessFromTask = (task) => {
   let resultsProm = [];
-  if (!task.killProcess) {
+  if (task.killProcess) {
     resultsProm = task.killProcess.nodeIds.map((nodeId) => {
         return killProcess(nodeId, (response) => {
-          handleKillProcessResult(task.id, response);
+          handleKillProcessResult(task.id, response, nodeId);
         }, (err) => {
-          handleKillProcessResult(task.id, err.response)
+          handleKillProcessResult(task.id, err.response, nodeId)
         })
     });
   }
   return Promise.all(resultsProm);
 };
 
-const executeSingleAction = (action) => {
-  for (let cnt = 1; cnt <= action.repeat; cnt++) {
+let mm = 0;
+const runActionSeq = (action) => {
+  return new Promise(resolve => {
     setTimeout(() => {
-      makeRequest(action)
-    }, action.delay * cnt)
-  }
+      makeRequest(action).then((response) => {
+        console.log(mm++);
+        resolve(response);
+      })
+    }, action.delay);
+  });
+};
+
+const executeSingleAction = (action) => {
+  let promises = Array.from({length: action.repeat}).reduce((acc) => {
+    return acc.then((res) => {
+      return runActionSeq(action).then((response) => {
+        res.push(response);
+        return res;
+      });
+    });
+  }, Promise.resolve([]));
+  return promises.then((responses) => {
+    console.log("in execute single action" + responses);
+    return responses;
+  });
 };
 
 const makeRequest = (action) => {
-  return axios(action.request).then((res) => {
-    handleActionRes(res, action.id);
+  return axios.request(action.request).then((res) => {
+    console.log(`completed action: ${action.name}`);
+    res.action = action;
+    return res;
   }).catch((err) => {
-    handleActionRes(err.response, action.id);
+    console.log(`failed action: ${action.name}`);
+    err.response.action = action;
+    return err.response;
   })
 };
 
-const handleActionRes = (res, actionId) => {
-  database.ref(`actions/${actionId}/responses`).push({
-      status: res.status,
-      data: res.data
+const handleTaskRes = (responses, task) => {
+  let results = [];
+  responses.map((response) => {
+    results.push({
+      actionId: response.action.id,
+      status: response.status,
+      data: response.data,
+      completedAt: moment().format('MMMM Do YYYY, h:mm:ss a'),
+    });
+  });
+  database.ref(`tasks/${task.id}/responses`).push({
+    results: results,
+    completedAt: moment().format('MMMM Do YYYY, h:mm:ss a'),
   });
 };
 

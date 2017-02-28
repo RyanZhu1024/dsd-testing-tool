@@ -10,7 +10,7 @@
   },
   responseExpected: {
     code: 200,
-    body: {}
+    data: {}
   },
   responses: {
     
