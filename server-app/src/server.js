@@ -119,6 +119,7 @@ app.param('taskId', (req, res, next, taskId) => {
     let task = snapshot.val();
     task.id = taskId;
     console.log(`current task: ${taskId}`);
+    console.log(`deleted: ${task.deleted}`);
     req.task = task;
     next();
   })
@@ -184,6 +185,61 @@ app.post('/api/v1/tasks', (req, res) => {
   req.body.createdAt = moment().format('MMMM Do YYYY, h:mm:ss a');
   task.set(req.body).then(() => {
     res.json({success: 'ok'});
+  })
+});
+
+app.get('/api/v1/tasks', (req, res) => {
+  database.ref('tasks').once('value', (snapshot) => {
+    let tasks = [];
+    snapshot.forEach((child) => {
+      console.log(`${child.key}`);
+      if (!child.val().deleted) {
+        tasks.push({
+          id: child.key,
+          value: {
+            caseActions: child.val().caseActions,
+            createdAt: child.val().createdAt,
+            modifiedAt: child.val().modifiedAt,
+            killProcess: child.val().killProcess,
+            name: child.val().name,
+          }})
+      }
+    });
+    res.json({
+      success: 'ok',
+      data: tasks
+    });
+  })
+});
+
+app.get('/api/v1/tasks/:taskId', (req, res) => {
+  res.json({
+    success: 'ok',
+    data: {
+      id: req.task.id,
+      caseActions: req.task.caseActions,
+      createdAt: req.task.createdAt,
+      modifiedAt: req.task.modifiedAt,
+      killProcess: req.task.killProcess,
+      name: req.task.name,
+      deleted: req.task.deleted
+    }
+  });
+});
+
+app.delete('/api/v1/tasks/:taskId', (req, res) => {
+  database.ref(`tasks/${req.task.id}`).update({
+    modifiedAt: moment().format('MMMM Do YYYY, h:mm:ss a'),
+    deleted: true
+  }).then(() => {
+    res.json({success: 'ok'})
+  })
+});
+
+app.put('/api/v1/tasks/:taskId', (req, res) => {
+  req.body.modifiedAt = moment().format('MMMM Do YYYY, h:mm:ss a');
+  database.ref(`tasks/${req.task.id}`).update(req.body).then(() => {
+    res.json({success: 'ok'})
   })
 });
 
@@ -310,6 +366,13 @@ const makeRequest = (action) => {
     return res;
   }).catch((err) => {
     console.log(`failed action: ${action.name}`);
+    console.log(err);
+    if (!err.response) {
+      err.response = {
+        status: err.code,
+        data: err.errno,
+      }
+    }
     err.response.action = action;
     return err.response;
   })
