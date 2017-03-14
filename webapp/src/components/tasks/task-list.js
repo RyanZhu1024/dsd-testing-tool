@@ -7,16 +7,13 @@ import TaskListItem from "./task-list-item.js";
 export default class TaskList extends Component {
 
 	componentWillMount () {
-		this.state = {tasks: []};
-		this.context.axios.get('tasks').then((res) => {
-			this.setState({tasks: res.data.data});
-		})
+		this.props.loadTasks();
 	}
 
 	render () {
 		return (
 			<ul className="list-group">
-				{this.state.tasks.map((task) => {
+				{this.props.tasks.map((task) => {
 					return <TaskListItem key={task.id} task={task.value}/>
 				})}
 			</ul>

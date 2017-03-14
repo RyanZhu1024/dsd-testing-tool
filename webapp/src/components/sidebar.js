@@ -3,11 +3,11 @@
  */
 import React from "react";
 import {BrowserRouter as Router, Route} from "react-router-dom";
-import TaskList from "../tasks/task-list.js";
+import TaskListContainer from "../containers/task-list-container.js";
 export default (props) => {
 	return (
 		<Router>
-			<Route path="/" component={TaskList} />
+			<Route path="/" component={TaskListContainer} />
 		</Router>
 	)
 }

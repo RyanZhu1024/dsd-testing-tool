@@ -5,9 +5,13 @@ import React from "react";
 import SideBar from "./sidebar.js";
 import Content from "./content.js";
 
+const styles = {
+	paddingTop: 30
+};
+
 export default (props) => {
 	return (
-		<div className="row">
+		<div className="row" style={styles}>
 			<div className="col-lg-3">
 				<SideBar />
 			</div>
