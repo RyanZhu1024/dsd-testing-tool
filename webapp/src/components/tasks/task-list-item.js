@@ -10,7 +10,10 @@ const TaskListItem = ({task}) => {
 
 TaskListItem.propTypes = {
 	task: React.PropTypes.shape({
-		actions: React.PropTypes.arrayOf(React.PropTypes.string.isRequired).isRequired,
+		actions: React.PropTypes.arrayOf(React.PropTypes.shape({
+			id: React.PropTypes.string.isRequired,
+			disable: React.PropTypes.bool
+		})).isRequired,
 		way: React.PropTypes.number.isRequired,
 		createdAt: React.PropTypes.string.isRequired,
 		modifiedAt: React.PropTypes.string,
