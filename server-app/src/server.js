@@ -56,6 +56,20 @@ app.get('/api/v1/node-info', (req, res) => {
   });
 });
 
+app.param('nodeId', (req,res, next, nodeId) => {
+  database.ref("nodes/" + nodeId).once('value').then((snapshot) => {
+    const node = snapshot.val();
+    node.id = nodeId;
+    req.node = node;
+    next();
+  })
+});
+
+app.get('/api/v1/node-info/:nodeId', (req, res) => {
+  console.log(req.node);
+  res.json(req.node);
+});
+
 let convertIp = (ip) => {
   if (ipaddr.IPv4.isValid(ip)) {
     return ip;
@@ -127,16 +141,21 @@ app.param('taskId', (req, res, next, taskId) => {
 
 app.param('actionId', (req, res, next, actionId) => {
   req.actionRef = database.ref(`actions/${actionId}`);
+  req.actionId = actionId;
   next();
 });
 
 app.get('/api/v1/actions/:actionId', (req, res) => {
   req.actionRef.once('value').then((snapshot) => {
     let action = snapshot.val();
+    console.log(action);
+    action.id = req.actionId;
     res.json({
       success: 'ok',
       data: action
     });
+  }).catch((err) => {
+    console.log(err);
   })
 });
 

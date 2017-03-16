@@ -4,7 +4,7 @@
 import React, {Component} from "react";
 import BasicInfo from "./task-basic-info.js";
 import ActionThumbnail from "../actions/action-thumbnail.js";
-import NodeInfo from "./node-info.js";
+import NodeThumbnail from "../nodes/node-thumbnail";
 import CollapseComponent from "../collapse-component.js";
 
 export default class TaskDetail extends Component {
@@ -12,7 +12,9 @@ export default class TaskDetail extends Component {
 
 	componentWillReceiveProps(nextProps) {
 		if (this.props.task !== nextProps.task) {
-			this.props.loadActionsByIds(nextProps.task.actions)
+			console.log(nextProps.task);
+			this.props.loadActionsByIds(nextProps.task.actions);
+			this.props.loadNodesToKill(nextProps.task.killProcess);
 		}
 	}
 
@@ -30,7 +32,8 @@ export default class TaskDetail extends Component {
 			},
 			{
 				title: "View Nodes To Kill Information",
-				component: NodeInfo,
+				component: NodeThumbnail,
+				nodes: this.props.nodesToKill
 			}
 		];
 		return (this.props.task && this.props.taskActions) ? <CollapseComponent components={components} /> : null;

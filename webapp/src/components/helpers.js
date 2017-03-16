@@ -4,6 +4,5 @@
 import Axios from "axios";
 
 export const axios = Axios.create({
-	baseURL: '/api/v1/',
-	timeout: 1000
+	baseURL: '/api/v1/'
 });

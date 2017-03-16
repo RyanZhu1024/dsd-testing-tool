@@ -28,3 +28,10 @@ export const loadActionsByIds = (payload) => {
 		payload
 	}
 };
+
+export const loadNodesToKill = (payload) => {
+	return {
+		type: 'LOAD_NODES_TO_KILL',
+		payload
+	}
+};
