@@ -5,7 +5,7 @@ import React from "react";
 
 export default ({actions}) => {
 	return <div>
-		{actions.map((action) => {
+		{actions ? actions.map((action) => {
 			return <div key={action.id} className="card">
 				<div className="card-block">
 					<h4 className="card-title">{action.name}</h4>
@@ -15,6 +15,6 @@ export default ({actions}) => {
 					<a href="#" className="card-link">Update Action</a>
 				</div>
 			</div>
-		})}
+		}) : null}
 	</div>
 }

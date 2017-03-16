@@ -1,28 +1,38 @@
 /**
  * Created by shuxuan on 15/03/2017.
  */
-import React from "react";
+import React, {Component} from "react";
 import BasicInfo from "./task-basic-info.js";
 import ActionThumbnail from "../actions/action-thumbnail.js";
 import NodeInfo from "./node-info.js";
 import CollapseComponent from "../collapse-component.js";
 
+export default class TaskDetail extends Component {
 
-export default ({tasks, id}) => {
-	const task = tasks.find((t) => t.id === id);
-	const components = [
-		{
-			title: "View Basic Information",
-			component: BasicInfo
-		},
-		{
-			title: "View Actions Information",
-			component: ActionThumbnail,
-		},
-		{
-			title: "View Nodes To Kill Information",
-			component: NodeInfo
+
+	componentWillReceiveProps(nextProps) {
+		if (this.props.task !== nextProps.task) {
+			this.props.loadActionsByIds(nextProps.task.actions)
 		}
-	];
-	return <CollapseComponent data={task} components={components} />
+	}
+
+	render () {
+		const components = [
+			{
+				title: "View Basic Information",
+				component: BasicInfo,
+				task: this.props.task
+			},
+			{
+				title: "View Actions Information",
+				component: ActionThumbnail,
+				actions: this.props.taskActions
+			},
+			{
+				title: "View Nodes To Kill Information",
+				component: NodeInfo,
+			}
+		];
+		return (this.props.task && this.props.taskActions) ? <CollapseComponent components={components} /> : null;
+	}
 }

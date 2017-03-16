@@ -21,3 +21,10 @@ export const loadTasks = (payload) => {
 		payload
 	}
 };
+
+export const loadActionsByIds = (payload) => {
+	return {
+		type: 'LOAD_ACTIONS_BY_IDS',
+		payload
+	}
+};

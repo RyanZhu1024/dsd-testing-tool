@@ -9,7 +9,7 @@ export default (props) => {
 		<div>
 			<Switch>
 				<Route path="/tasks" exact={true} render={() => <h3>Select a task from left to view</h3> } />
-				<Route path="/tasks/:id" render={({match}) => <TaskDetail tasks={props.tasks} id={match.params.id}/> }/>
+				<Route path="/tasks/:id" render={({match}) => <TaskDetail task={props.tasks.find((t) => t.id === match.params.id)} {...props}/> }/>
 			</Switch>
 		</div>
 	)

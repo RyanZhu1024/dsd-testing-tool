@@ -3,10 +3,10 @@
  */
 import React from "react";
 
-export default ({components, data}) => {
+export default (props) => {
 	return (
 			<div id="accordion" role="tablist" aria-multiselectable="true">
-				{components.map((val, index) => {
+				{props.components.map((val, index) => {
 					return <div key={index} className="card">
 							<div className="card-header" role="tab" id={`heading${index}`}>
 								<h5 className="mb-0">
@@ -17,7 +17,7 @@ export default ({components, data}) => {
 							</div>
 							<div id={`collapse${index}`} className={`collapse ${index === 0 ? "show" : ""}`} role="tabpanel" aria-labelledby={`heading${index}`}>
 								<div className="card-block">
-									{data ? <val.component {...data}/> : undefined}
+									<val.component {...val}/>
 								</div>
 							</div>
 						</div>
