@@ -2,7 +2,7 @@
  * Created by shuxuan on 13/03/2017.
  */
 import {connect} from "react-redux";
-import TaskList from "../components/tasks/task-list.js";
+import Article from "../components/article.js";
 import {axios} from "../components/helpers.js";
 import {loadTasks} from "../actions";
 
@@ -31,6 +31,6 @@ const mapDispatchToProps = (dispatch) => {
 	}
 };
 
-const TaskListContainer = connect(mapStateToProps, mapDispatchToProps)(TaskList);
+const TaskListContainer = connect(mapStateToProps, mapDispatchToProps)(Article);
 
 export default TaskListContainer;

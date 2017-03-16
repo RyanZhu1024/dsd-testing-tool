@@ -2,19 +2,16 @@
  * Created by shuxuan on 12/03/2017.
  */
 import React from "react";
+import {NavLink} from "react-router-dom";
 
 const TaskListItem = ({task}) => {
-	return <li className="list-group-item list-group-item-action">
-		{task.name}
-	</li>
+	return <NavLink activeClassName="active" className="list-group-item list-group-item-action" to={`/tasks/${task.id}`}>{task.name}</NavLink>
 };
 
 TaskListItem.propTypes = {
 	task: React.PropTypes.shape({
-		caseActions: React.PropTypes.shape({
-			actions: React.PropTypes.arrayOf(React.PropTypes.string.isRequired).isRequired,
-			way: React.PropTypes.number.isRequired
-		}).isRequired,
+		actions: React.PropTypes.arrayOf(React.PropTypes.string.isRequired).isRequired,
+		way: React.PropTypes.number.isRequired,
 		createdAt: React.PropTypes.string.isRequired,
 		modifiedAt: React.PropTypes.string,
 		killProcess: React.PropTypes.shape({

@@ -12,9 +12,6 @@
     code: 200,
     data: {}
   },
-  responses: {
-    
-  }
   repeat: 1,
   delay: 5, (millisecond) 
 }
@@ -40,10 +37,8 @@
         ]
     }      
   }
-  caseActions: {
-    way: 1(concurrently) | 2(sequentially)
-    actions: [id1, id2, id3]
-  },
+  way: 1(concurrently) | 2(sequentially)
+  actions: [id1, id2, id3]
   responses: {
     "id": {
       completedAt: "February 27th 2017, 5:30:09 pm",

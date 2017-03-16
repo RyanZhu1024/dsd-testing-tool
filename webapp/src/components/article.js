@@ -13,10 +13,10 @@ export default (props) => {
 	return (
 		<div className="row" style={styles}>
 			<div className="col-lg-3">
-				<SideBar />
+				<SideBar {...props} />
 			</div>
 			<div className="col-lg-9">
-				<Content />
+				<Content {...props}/>
 			</div>
 		</div>
 	)

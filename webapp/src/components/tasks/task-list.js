@@ -12,11 +12,11 @@ export default class TaskList extends Component {
 
 	render () {
 		return (
-			<ul className="list-group">
+			<div className="list-group">
 				{this.props.tasks.map((task) => {
-					return <TaskListItem key={task.id} task={task.value}/>
+					return <TaskListItem key={task.id} task={task}/>
 				})}
-			</ul>
+			</div>
 		)
 	}
 };
