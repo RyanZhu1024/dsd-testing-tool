@@ -173,7 +173,7 @@ app.get('/api/v1/actions', (req, res) => {
     snapshot.forEach((child) => {
       console.log(`${child.key}`);
       if (!child.val().deleted) {
-        actions.push({id: child.key, value: child.val()})
+        actions.push(Object.assign({}, child.val(), {id: child.key}))
       }
     });
     res.json({

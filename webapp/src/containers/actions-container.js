@@ -3,6 +3,8 @@
  */
 import {connect} from "react-redux";
 import Article from "../components/article.js";
+import {axios} from "../components/helpers.js";
+import {loadActions, selectAction} from "../actions";
 
 const mapStateToProps = (state) => {
 	return {
@@ -12,7 +14,17 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
 	return {
-
+		loadActions: () => {
+			axios.get('actions').then((res) => {
+				dispatch(loadActions(res.data.data));
+			});
+		},
+		handleSubmit: () => {
+			console.log("submitted");
+		},
+		selectAction: (action) => {
+			dispatch(selectAction(action))
+		}
 	}
 };
 

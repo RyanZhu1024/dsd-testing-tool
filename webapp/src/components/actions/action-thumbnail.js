@@ -5,6 +5,7 @@ import React from "react";
 import ActionCardContainer from "../../containers/action-card-container";
 
 export default ({actions}) => {
+	console.log(actions);
 	return <div>
 		{actions ? actions.map((action) => {
 			const data = {

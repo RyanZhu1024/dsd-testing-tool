@@ -35,3 +35,17 @@ export const loadNodesToKill = (payload) => {
 		payload
 	}
 };
+
+export const loadActions = (payload) => {
+	return {
+		type: 'LOAD_ACTIONS',
+		payload
+	}
+};
+
+export const selectAction = (payload) => {
+	return {
+		type: 'SELECT_ACTION',
+		payload
+	}
+};
