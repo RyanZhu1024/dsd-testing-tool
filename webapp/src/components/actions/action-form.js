@@ -2,15 +2,15 @@
  * Created by shuxuan on 17/03/2017.
  */
 import React, {Component} from "react";
-import {Field, reduxForm} from "redux-form";
+import {Field, reduxForm, Fields} from "redux-form";
 
-const requestComponent = () => {
+const requestComponent = (fields) => {
 	return <div className="row">
 		<div className="col-lg-1"></div>
 		<div className="col-lg-11">
 			<div className="form-group">
-				<label htmlFor="request.method"><h5>Request Method</h5></label>
-				<Field className="form-control" name="request.method" component="select">
+				<label htmlFor="request.method"><h5>Method</h5></label>
+				<Field className="form-control" {...fields.request.method.input} component="select">
 					<option value=""></option>
 					<option value="GET">GET</option>
 					<option value="POST">POST</option>
@@ -19,17 +19,43 @@ const requestComponent = () => {
 				</Field>
 			</div>
 			<div className="form-group">
-				<label htmlFor="request.url"><h5>Request URL</h5></label>
-				<Field className="form-control" name="request.url" component="input" type="text" />
+				<label htmlFor="url"><h3>URL</h3></label>
+				<Field className="form-control" {...fields.request.url.input} type="text" component="input"/>
 			</div>
-			<div className="form-group">
-				<label htmlFor="request.headers"><h5>Request Headers</h5></label>
-				<Field className="form-control" name="request.headers" component="input" type="text" />
-			</div>
-			<div className="form-group">
-				<label htmlFor="request.data"><h5>Request Body</h5></label>
-				<Field className="form-control" name="request.data" component="input" type="textarea" />
-			</div>
+			{/*{*/}
+				{/*Object.keys(fields.request.headers.input.value).map((key,index) => {*/}
+					{/*const header = {*/}
+						{/*name: `request.headers.${key}`,*/}
+						{/*value: fields.request.headers.input.value.key*/}
+					{/*};*/}
+					{/*return <div key={`header${index}`} className="form-inline">*/}
+						{/*Key: <Field className="form-control" name={header.key} value={header.key} component="input" type="text" />*/}
+						{/*Value: <Field className="form-control" name={header.value} value={header.value} component="input" type="text" />*/}
+					{/*</div>*/}
+				{/*})*/}
+			{/*}*/}
+		</div>
+	</div>
+};
+
+
+const formComponent = (fields) => {
+	return <div>
+		<div className="form-group">
+			<label htmlFor="name"><h3>Action Name</h3></label>
+			<Field className="form-control" {...fields.name.input} component="input" type="text" />
+		</div>
+		<div className="form-group">
+			<label htmlFor="delay"><h3>Delay Time</h3></label>
+			<Field className="form-control" {...fields.delay.input} component="input" type="number" />
+		</div>
+		<div className="form-group">
+			<label htmlFor="repeat"><h3>Repeat</h3></label>
+			<Field className="form-control" {...fields.repeat.input} component="input" type="number" />
+		</div>
+		<div className="form-group">
+			<label htmlFor="request"><h3>Request</h3></label>
+			<Fields names={['request.method','request.url', 'request.headers']} className="form-control" component={requestComponent} />
 		</div>
 	</div>
 };
@@ -39,22 +65,10 @@ class ActionForm extends Component {
 	render () {
 		const {handleSubmit} = this.props;
 		return <form onSubmit={handleSubmit}>
-			<div className="form-group">
-				<label htmlFor="name"><h3>Action Name</h3></label>
-				<Field className="form-control" name="name" component="input" type="text" />
-			</div>
-			<div className="form-group">
-				<label htmlFor="delay"><h3>Delay Time</h3></label>
-				<Field className="form-control" name="delay" component="input" type="number" />
-			</div>
-			<div className="form-group">
-				<label htmlFor="repeat"><h3>Repeat</h3></label>
-				<Field className="form-control" name="repeat" component="input" type="number" />
-			</div>
-			<div className="form-group">
-				<label htmlFor="request"><h3>Request</h3></label>
-				<Field className="form-control" name="request" component={requestComponent} />
-			</div>
+			<Fields names={[
+				'name', 'delay', 'repeat', 'request',
+				'responseExpected',
+			]} component={formComponent}/>
 		</form>
 	}
 }
