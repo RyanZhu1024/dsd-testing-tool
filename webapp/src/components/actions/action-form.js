@@ -2,44 +2,55 @@
  * Created by shuxuan on 17/03/2017.
  */
 import React, {Component} from "react";
-import {Field, reduxForm, Fields} from "redux-form";
+import {Field, reduxForm, Fields, FieldArray} from "redux-form";
 
 const requestComponent = (fields) => {
-	return <div className="row">
-		<div className="col-lg-1"></div>
-		<div className="col-lg-11">
-			<div className="form-group">
-				<label htmlFor="request.method"><h5>Method</h5></label>
-				<Field className="form-control" {...fields.request.method.input} component="select">
-					<option value=""></option>
-					<option value="GET">GET</option>
-					<option value="POST">POST</option>
-					<option value="PUT">PUT</option>
-					<option value="DELETE">DELETE</option>
-				</Field>
-			</div>
-			<div className="form-group">
-				<label htmlFor="url"><h3>URL</h3></label>
-				<Field className="form-control" {...fields.request.url.input} type="text" component="input"/>
-			</div>
-			{/*{*/}
-				{/*Object.keys(fields.request.headers.input.value).map((key,index) => {*/}
-					{/*const header = {*/}
-						{/*name: `request.headers.${key}`,*/}
-						{/*value: fields.request.headers.input.value.key*/}
-					{/*};*/}
-					{/*return <div key={`header${index}`} className="form-inline">*/}
-						{/*Key: <Field className="form-control" name={header.key} value={header.key} component="input" type="text" />*/}
-						{/*Value: <Field className="form-control" name={header.value} value={header.value} component="input" type="text" />*/}
-					{/*</div>*/}
-				{/*})*/}
-			{/*}*/}
+	return <div>
+		<div className="form-group">
+			<label htmlFor="request.method"><h5>Method</h5></label>
+			<Field className="form-control" {...fields.request.method.input} component="select">
+				<option value=""></option>
+				<option value="GET">GET</option>
+				<option value="POST">POST</option>
+				<option value="PUT">PUT</option>
+				<option value="DELETE">DELETE</option>
+			</Field>
+		</div>
+		<div className="form-group">
+			<label htmlFor="url"><h3>URL</h3></label>
+			<Field className="form-control" {...fields.request.url.input} type="text" component="input"/>
+		</div>
+		<div className="form-group">
+			<label htmlFor="request.headers"><h3>Headers</h3></label>
+			<FieldArray name="request.headers" component={headersComponent} />
 		</div>
 	</div>
 };
 
+const headersComponent = ({fields}) => {
+	if (fields.length == 0) fields.push();
+	return <div>
+		{fields.map((header, index) => {
+			return <div className="form-inline" key={header}>
+				<div className="input-group mb-2 mr-sm-2 mb-sm-0">
+					<div className="input-group-addon">Key</div>
+					<Field className="form-control" name={`${header}.key`} type="text" component="input" />
+				</div>
+				<div className="input-group mb-2 mr-sm-2 mb-sm-0">
+					<div className="input-group-addon">Value</div>
+					<Field className="form-control" name={`${header}.value`} type="text" component="input" />
+				</div>
+				<div className="btn-group" role="group">
+					<button onClick={() => fields.push()} className="btn btn-primary" type="button">Add</button>
+					<button onClick={() => fields.remove(index)} className="btn btn-danger" type="button">Delete</button>
+				</div>
+			</div>
+		})}
+	</div>
+};
 
 const formComponent = (fields) => {
+	console.log(`From request component: ${JSON.stringify(fields)}`);
 	return <div>
 		<div className="form-group">
 			<label htmlFor="name"><h3>Action Name</h3></label>
