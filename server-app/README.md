@@ -6,7 +6,7 @@
     method: GET,
     url: http://ip:port/path1/path2/path3?param1=val1&param2=val2,
     data: {},
-    headers: {},
+    headers: [{key:"",value:""}]
   },
   responseExpected: {
     code: 200,

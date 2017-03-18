@@ -382,7 +382,11 @@ const executeSingleAction = (action) => {
 };
 
 const makeRequest = (action) => {
-  return axios.request(action.request).then((res) => {
+  let headers = {};
+  let requestVar = Object.assign({}, action.request);
+  requestVar.headers.map(({key, value}) => Object.assign(headers, {key: value}));
+  requestVar.headers = headers;
+  return axios.request(requestVar).then((res) => {
     console.log(`completed action: ${action.name}`);
     res.action = action;
     return res;
