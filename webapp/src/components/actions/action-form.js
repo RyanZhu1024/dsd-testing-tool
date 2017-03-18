@@ -17,11 +17,11 @@ const requestComponent = (fields) => {
 			</Field>
 		</div>
 		<div className="form-group">
-			<label htmlFor="url"><h3>URL</h3></label>
+			<label htmlFor="url"><h5>URL</h5></label>
 			<Field className="form-control" {...fields.request.url.input} type="text" component="input"/>
 		</div>
 		<div className="form-group">
-			<label htmlFor="request.headers"><h3>Headers</h3></label>
+			<label htmlFor="request.headers"><h5>Headers</h5></label>
 			<FieldArray name="request.headers" component={headersComponent} />
 		</div>
 	</div>
