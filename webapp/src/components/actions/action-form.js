@@ -28,9 +28,8 @@ const requestComponent = (fields) => {
 };
 
 const headersComponent = ({fields}) => {
-	if (fields.length == 0) fields.push();
 	return <div>
-		{fields.map((header, index) => {
+		{fields.length > 0 ? fields.map((header, index) => {
 			return <div className="form-inline" key={header}>
 				<div className="input-group mb-2 mr-sm-2 mb-sm-0">
 					<div className="input-group-addon">Key</div>
@@ -45,7 +44,10 @@ const headersComponent = ({fields}) => {
 					<button onClick={() => fields.remove(index)} className="btn btn-danger" type="button">Delete</button>
 				</div>
 			</div>
-		})}
+		}) : <div className="btn-group" role="group">
+				<button onClick={() => fields.push()} className="btn btn-primary" type="button">Add</button>
+			</div>
+		}
 	</div>
 };
 
