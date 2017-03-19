@@ -88,20 +88,20 @@ const formComponent = (fields) => {
 class ActionForm extends Component {
 
 	render () {
-		const {handleSubmit, actionForm, pristine, submitting} = this.props;
-		return <form>
-			<Fields names={[
-				'name', 'delay', 'repeat', 'request',
-				'responseExpected',
-			]} component={formComponent}/>
-			<button type="button" disabled={submitting} onClick={() => handleSubmit(actionForm)} className="btn btn-primary">Submit</button>
-		</form>
+		 const {submitting, pristine, handleSubmit} = this.props;
+		return <form onSubmit={handleSubmit}>
+				<Fields names={[
+					'name', 'delay', 'repeat', 'request',
+					'responseExpected',
+				]} component={formComponent}/>
+				<button type="submit" disabled={submitting || pristine} className="btn btn-primary">Submit</button>
+			</form>
 	}
 }
 
 ActionForm = reduxForm({
 	form: 'action',
-	enableReinitialize: true
+	enableReinitialize: true,
 })(ActionForm);
 
 export default ActionForm;

@@ -9,7 +9,6 @@ import {loadActions, selectAction, updateAction} from "../actions";
 const mapStateToProps = (state) => {
 	return {
 		actions: state.actions,
-		actionForm: state.form.action
 	}
 };
 
@@ -20,15 +19,12 @@ const mapDispatchToProps = (dispatch) => {
 				dispatch(loadActions(res.data.data));
 			});
 		},
-		handleSubmit: (form) => {
-			console.log("update form ", form.values);
-			axios.put(`actions/${form.values.id}`, form.values).then(() => {
-				dispatch(updateAction(form.values));
+		changeAction: (form) => {
+			console.log("update form ", form);
+			return axios.put(`actions/${form.id}`, form).then(() => {
+				dispatch(updateAction(form));
 			})
 		},
-		selectAction: (action) => {
-			dispatch(selectAction(action))
-		}
 	}
 };
 
