@@ -31,26 +31,25 @@ const mapDispatchToProps = (dispatch) => {
 			})
 		},
 		loadNodesToKill: (killProcess) => {
-			console.log(killProcess);
+			console.log(`loadNodesToKill ${killProcess}`);
 			if (killProcess) {
 				Promise.all(killProcess.nodeIds.map((id) => {
 					return axios.get(`node-info/${id}`);
 				})).then((res) => {
 					const nodes = res.map((rs) => rs.data);
 					dispatch(loadNodesToKill(nodes));
-					console.log(nodes);
 				})
 			} else {
 				dispatch(loadNodesToKill([]));
 			}
 		},
 		loadActionsByIds: (acts) => {
-			Promise.all(acts.map((act) => {
+			acts && Promise.all(acts.map((act) => {
 				return axios.get(`actions/${act.id}`);
 			})).then((res) => {
 				const actions = res.map((rs, index) => Object.assign({}, rs.data.data, {disable: acts[index].disable}));
 				dispatch(loadActionsByIds(actions));
-				console.log(actions)
+				console.log(`loadActionsByIds ${actions}`)
 			})
 		}
 	}

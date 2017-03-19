@@ -9,10 +9,18 @@ import CollapseComponent from "../collapse-component.js";
 
 export default class TaskDetail extends Component {
 
+	componentWillMount () {
+		const {task} = this.props;
+		console.log(`TaskDetail componentWillMount :${task}`);
+		if (task) {
+			this.props.loadActionsByIds(task.actions);
+			this.props.loadNodesToKill(task.killProcess);
+		}
+	}
 
 	componentWillReceiveProps(nextProps) {
 		if (this.props.task !== nextProps.task) {
-			console.log(nextProps.task);
+			console.log(`task componentWillReceiveProps :${nextProps.task}`);
 			this.props.loadActionsByIds(nextProps.task.actions);
 			this.props.loadNodesToKill(nextProps.task.killProcess);
 		}

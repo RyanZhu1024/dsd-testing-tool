@@ -13,8 +13,8 @@ TaskListItem.propTypes = {
 		actions: React.PropTypes.arrayOf(React.PropTypes.shape({
 			id: React.PropTypes.string.isRequired,
 			disable: React.PropTypes.bool
-		})).isRequired,
-		way: React.PropTypes.number.isRequired,
+		})),
+		way: React.PropTypes.number,
 		createdAt: React.PropTypes.string.isRequired,
 		modifiedAt: React.PropTypes.string,
 		killProcess: React.PropTypes.shape({

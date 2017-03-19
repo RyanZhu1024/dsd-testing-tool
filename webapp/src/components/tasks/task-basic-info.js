@@ -12,7 +12,7 @@ export default ({task}) => {
 			</tr>
 			<tr>
 				<td>Case Actions Count</td>
-				<td>{task.actions.length}</td>
+				<td>{task.actions ? task.actions.length : 0}</td>
 			</tr>
 			<tr>
 				<td>Way To Run Actions</td>
