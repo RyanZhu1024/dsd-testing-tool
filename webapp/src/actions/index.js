@@ -49,3 +49,10 @@ export const selectAction = (payload) => {
 		payload
 	}
 };
+
+export const updateAction = (action) => {
+	return {
+		type: 'UPDATE_ACTION',
+		action
+	}
+};

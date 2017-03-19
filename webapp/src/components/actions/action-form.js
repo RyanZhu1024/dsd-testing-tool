@@ -8,7 +8,7 @@ const requestComponent = (fields) => {
 	return <div>
 		<div className="form-group">
 			<label htmlFor="request.method"><h5>Method</h5></label>
-			<Field className="form-control" {...fields.request.method.input} component="select">
+			<Field className="form-control" name="request.method" component="select">
 				<option value=""></option>
 				<option value="GET">GET</option>
 				<option value="POST">POST</option>
@@ -16,13 +16,30 @@ const requestComponent = (fields) => {
 				<option value="DELETE">DELETE</option>
 			</Field>
 		</div>
-		<div className="form-group">
-			<label htmlFor="url"><h5>URL</h5></label>
-			<Field className="form-control" {...fields.request.url.input} type="text" component="input"/>
-		</div>
+		<Field validate={(value) => value ? undefined : "Url Can't be empty"} label="URL"
+			className="form-control" name="request.url" type="text" component={renderField}/>
 		<div className="form-group">
 			<label htmlFor="request.headers"><h5>Headers</h5></label>
 			<FieldArray name="request.headers" component={headersComponent} />
+		</div>
+		<Field name="request.data" type="text" component={renderField} label="Body"/>
+	</div>
+};
+
+const responseExpectedComponent = (fields) => {
+	return <div>
+		<Field validate={(value) => value ? undefined : "Response Code Can't be empty"} label="Code"
+       className="form-control" name="responseExpected.code" type="number" component={renderField}/>
+		<Field name="responseExpected.data" type="text" component={renderField} label="Body"/>
+	</div>
+};
+
+const renderField = ({ input, label, type, meta: { touched, error} }) => {
+	return <div className={`form-group ${touched && (error ? "has-danger" : "has-success")}`}>
+		<label htmlFor={input.name}><h5>{label}</h5></label>
+		<div>
+			<input className="form-control" {...input} type={type}/>
+			{touched && <div className="form-control-feedback">{error ? error : "Excellent"}</div>}
 		</div>
 	</div>
 };
@@ -52,23 +69,18 @@ const headersComponent = ({fields}) => {
 };
 
 const formComponent = (fields) => {
-	console.log(`From request component: ${JSON.stringify(fields)}`);
+	// console.log(JSON.stringify(fields));
 	return <div>
-		<div className="form-group">
-			<label htmlFor="name"><h3>Action Name</h3></label>
-			<Field className="form-control" {...fields.name.input} component="input" type="text" />
-		</div>
-		<div className="form-group">
-			<label htmlFor="delay"><h3>Delay Time</h3></label>
-			<Field className="form-control" {...fields.delay.input} component="input" type="number" />
-		</div>
-		<div className="form-group">
-			<label htmlFor="repeat"><h3>Repeat</h3></label>
-			<Field className="form-control" {...fields.repeat.input} component="input" type="number" />
-		</div>
+		<Field className="form-control" {...fields.name.input} label="Action Name" component={renderField} type="text" />
+		<Field className="form-control" {...fields.delay.input} label="Delay Time" component={renderField} type="number" />
+		<Field className="form-control" {...fields.repeat.input} label="Repeat" component={renderField} type="number" />
 		<div className="form-group">
 			<label htmlFor="request"><h3>Request</h3></label>
-			<Fields names={['request.method','request.url', 'request.headers']} className="form-control" component={requestComponent} />
+			<Fields names={['request.method','request.url', 'request.headers, request.data']} className="form-control" component={requestComponent} />
+		</div>
+		<div className="form-group">
+			<label htmlFor="request"><h3>Response Expected</h3></label>
+			<Fields names={['responseExpected.code, responseExpected.data']} className="form-control" component={responseExpectedComponent} />
 		</div>
 	</div>
 };
@@ -76,12 +88,13 @@ const formComponent = (fields) => {
 class ActionForm extends Component {
 
 	render () {
-		const {handleSubmit} = this.props;
-		return <form onSubmit={handleSubmit}>
+		const {handleSubmit, actionForm, pristine, submitting} = this.props;
+		return <form>
 			<Fields names={[
 				'name', 'delay', 'repeat', 'request',
 				'responseExpected',
 			]} component={formComponent}/>
+			<button type="button" disabled={submitting} onClick={() => handleSubmit(actionForm)} className="btn btn-primary">Submit</button>
 		</form>
 	}
 }

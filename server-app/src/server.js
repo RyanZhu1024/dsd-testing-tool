@@ -173,7 +173,8 @@ app.get('/api/v1/actions', (req, res) => {
     snapshot.forEach((child) => {
       console.log(`${child.key}`);
       if (!child.val().deleted) {
-        actions.push(Object.assign({}, child.val(), {id: child.key}))
+        let action = child.val();
+        actions.push(Object.assign({}, action, {id: child.key}))
       }
     });
     res.json({
@@ -184,6 +185,7 @@ app.get('/api/v1/actions', (req, res) => {
 });
 
 app.put('/api/v1/actions/:actionId', (req, res) => {
+  console.log("update action" + JSON.stringify(req.body));
   req.body.modifiedAt = moment().format('MMMM Do YYYY, h:mm:ss a');
   req.actionRef.update(req.body).then(() => {
     res.json({success: 'ok'})

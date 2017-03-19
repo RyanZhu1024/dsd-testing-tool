@@ -4,11 +4,12 @@
 import {connect} from "react-redux";
 import Article from "../components/article.js";
 import {axios} from "../components/helpers.js";
-import {loadActions, selectAction} from "../actions";
+import {loadActions, selectAction, updateAction} from "../actions";
 
 const mapStateToProps = (state) => {
 	return {
-		actions: state.actions
+		actions: state.actions,
+		actionForm: state.form.action
 	}
 };
 
@@ -19,8 +20,11 @@ const mapDispatchToProps = (dispatch) => {
 				dispatch(loadActions(res.data.data));
 			});
 		},
-		handleSubmit: () => {
-			console.log("submitted");
+		handleSubmit: (form) => {
+			console.log("update form ", form.values);
+			axios.put(`actions/${form.values.id}`, form.values).then(() => {
+				dispatch(updateAction(form.values));
+			})
 		},
 		selectAction: (action) => {
 			dispatch(selectAction(action))
