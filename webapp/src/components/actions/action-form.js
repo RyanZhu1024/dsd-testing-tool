@@ -88,7 +88,7 @@ const formComponent = (fields) => {
 class ActionForm extends Component {
 
 	render () {
-		 const {submitting, pristine, handleSubmit} = this.props;
+		const {submitting, pristine, handleSubmit} = this.props;
 		return <form onSubmit={handleSubmit}>
 				<Fields names={[
 					'name', 'delay', 'repeat', 'request',
