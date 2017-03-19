@@ -3,6 +3,7 @@
  */
 import React, {Component} from "react";
 import {Field, reduxForm, Fields, FieldArray} from "redux-form";
+import {Route, Switch} from "react-router-dom";
 
 const requestComponent = (fields) => {
 	return <div>
@@ -94,8 +95,21 @@ class ActionForm extends Component {
 					'name', 'delay', 'repeat', 'request',
 					'responseExpected',
 				]} component={formComponent}/>
-				<button type="submit" disabled={submitting || pristine} className="btn btn-primary">Submit</button>
+				<Switch>
+					<Route path="/actions/new" exact={true} render={() => <button type="submit" disabled={submitting || pristine} className="btn btn-primary">Create</button>}/>
+					<Route path="/actions/:id" render={({match}) => <ButtonGroup id={match.params.id} {...this.props}/>}/>
+				</Switch>
 			</form>
+	}
+}
+
+class ButtonGroup extends Component {
+	render() {
+		const {submitting, pristine, handleDelete, id, history} = this.props;
+		return <div className="btn-group" role="group">
+			<button disabled={submitting || pristine} className="btn btn-primary" type="submit">Update</button>
+			<button onClick={() => handleDelete(id, history)} className="btn btn-danger" type="button">Delete</button>
+		</div>
 	}
 }
 

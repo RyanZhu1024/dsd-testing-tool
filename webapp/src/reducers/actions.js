@@ -10,6 +10,8 @@ const singleAction = (state = {}, action) => {
 			} else {
 				return action.action;
 			}
+		case 'CREATE_ACTION':
+			return action.action;
 		default:
 			return state;
 	}
@@ -22,6 +24,13 @@ const actions = (state = [], action) => {
 		case 'UPDATE_ACTION':
 			console.log(`Update Action${JSON.stringify(action.action)}`);
 			return state.map(act => singleAction(act, action));
+		case 'CREATE_ACTION':
+			return [
+				...state,
+				singleAction(undefined, action)
+			];
+		case 'DELETE_ACTION':
+			return state.filter((act) => act.id !== action.id);
 		default:
 			return state;
 	}

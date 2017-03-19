@@ -43,10 +43,10 @@ export const loadActions = (payload) => {
 	}
 };
 
-export const selectAction = (payload) => {
+export const createAction = (action) => {
 	return {
-		type: 'SELECT_ACTION',
-		payload
+		type: 'CREATE_ACTION',
+		action
 	}
 };
 
@@ -54,5 +54,12 @@ export const updateAction = (action) => {
 	return {
 		type: 'UPDATE_ACTION',
 		action
+	}
+};
+
+export const deleteAction = (id) => {
+	return {
+		type: 'DELETE_ACTION',
+		id
 	}
 };

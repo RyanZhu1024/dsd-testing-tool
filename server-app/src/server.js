@@ -163,7 +163,8 @@ app.post('/api/v1/actions', (req, res) => {
   let action = database.ref('actions').push();
   req.body.createdAt = moment().format('MMMM Do YYYY, h:mm:ss a');
   action.set(req.body).then(() => {
-    res.json({success: 'ok'})
+    req.body.id = action.key;
+    res.json({success: 'ok', data: req.body})
   })
 });
 
