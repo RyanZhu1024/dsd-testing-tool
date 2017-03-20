@@ -2,7 +2,7 @@
  * Created by shuxuan on 19/03/2017.
  */
 import React, {Component} from "react";
-import {Field, reduxForm, Fields} from "redux-form";
+import {Field, reduxForm, Fields, FieldArray} from "redux-form";
 import {Route, Switch} from "react-router-dom";
 
 const renderSelect = ({input, label, options, meta: {touched, error}}) => {
@@ -25,9 +25,7 @@ const renderMultiSelect = ({input, label, options, meta: {touched, error}}) => {
 		<label htmlFor={input.name}><h5>{label}</h5></label>
 		<div>
 			<select className="form-control" {...input} multiple="multiple">
-				{
-					options.map((op) => <option key={op.key} value={op.key}>{op.value}</option>)
-				}
+				{options.map((op,index) => <option value={op.id} key={index}>{op.display}</option>)}
 			</select>
 			{touched && <div className="form-control-feedback">{error ? error : "Excellent"}</div>}
 		</div>
@@ -56,15 +54,15 @@ const formComponent = (props) => {
 
 		<Field validate={(value) => value ? undefined : "Actions Can't be empty"} className="form-control"
 		       component={renderMultiSelect} name="actions" label="Actions"
-		       options={actionOptions ? actionOptions.map(act => {return {key: act.id, value: act.name}}) : []} />
+		       options={actionOptions.map(act => {act.display = act.name; return act;})} />
 
 		<Field validate={(value) => value ? undefined : "Verify Actions Can't be empty"} className="form-control"
 		       component={renderMultiSelect} name="verifyActions" label="Verify Actions"
-		       options={actionOptions ? actionOptions.map(act => {return {key: act.id, value: act.name}}) : []} />
+		       options={actionOptions.map(act => {act.display = act.name; return act;})} />
 
 		<Field validate={(value) => value ? undefined : "Nodes to Kill Can't be empty"} className="form-control"
-		       component={renderMultiSelect} name="killProcess.nodeIds" label="Nodes to Kill"
-		       options={nodes ? nodes.map(node => {return {key: node.id, value: node.ip}}) : []} />
+		       component={renderMultiSelect} name="nodeIdsToKill" label="Nodes to Kill"
+		       options={nodes.map(node => {node.display = node.ip; return node;})} />
 	</div>
 };
 

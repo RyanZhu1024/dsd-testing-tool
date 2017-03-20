@@ -4,7 +4,7 @@
 import {connect} from "react-redux";
 import Article from "../components/article.js";
 import {axios} from "../components/helpers.js";
-import {loadTasks, loadActionsByIds, loadNodesToKill, deleteTask, loadActionOptions, loadAllNodes} from "../actions";
+import {createTask, updateTask, loadTasks, loadActionsByIds, loadNodesToKill, deleteTask, loadActionOptions, loadAllNodes} from "../actions";
 
 const getVisibleTasks = (tasks, filter) => {
 	switch (filter) {
@@ -32,10 +32,10 @@ const mapDispatchToProps = (dispatch) => {
 				dispatch(loadTasks(res.data.data));
 			})
 		},
-		loadNodesToKill: (killProcess) => {
-			console.log(`loadNodesToKill ${killProcess}`);
-			if (killProcess) {
-				Promise.all(killProcess.nodeIds.map((id) => {
+		loadNodesToKill: (nodeIds) => {
+			console.log(`loadNodesToKill ${nodeIds}`);
+			if (nodeIds) {
+				Promise.all(nodeIds.map((id) => {
 					return axios.get(`node-info/${id}`);
 				})).then((res) => {
 					const nodes = res.map((rs) => rs.data);
@@ -47,7 +47,7 @@ const mapDispatchToProps = (dispatch) => {
 		},
 		loadActionsByIds: (acts) => {
 			acts && Promise.all(acts.map((act) => {
-				return axios.get(`actions/${act.id}`);
+				return axios.get(`actions/${act}`);
 			})).then((res) => {
 				const actions = res.map((rs, index) => Object.assign({}, rs.data.data, {disable: acts[index].disable}));
 				dispatch(loadActionsByIds(actions));
@@ -60,10 +60,18 @@ const mapDispatchToProps = (dispatch) => {
 			});
 		},
 		createTask: (form, history) => {
-			console.log(`createTask ${JSON.stringify(form)}`);
+			return axios.post('tasks', form).then((res) => {
+				console.log("create task", res.data.data);
+				dispatch(createTask(res.data.data));
+				history.push(`/tasks/${res.data.data.id}`);
+			})
 		},
 		changeTask: (form) => {
-			console.log(`changeTask ${form}`);
+			console.log(`changeTask ${JSON.stringify(form)}`);
+			const {id, toUpdate} = form;
+			return axios.put(`tasks/${id}`, toUpdate).then(() => {
+				dispatch(updateTask(form));
+			})
 		},
 		handleDelete: (id, history) => {
 			console.log(`handleDelete ${id}`);

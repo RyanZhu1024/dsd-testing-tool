@@ -12,7 +12,7 @@ export default ({id, title, viewPath, updatePath, disable, summary}) => {
 			<p className="card-text">
 				{JSON.stringify(summary).substring(0, 50)}
 			</p>
-			<Route path="/tasks/:id" exact={true} component={() => <a href="#" className="card-link">{disable ? "Enable" : "Disable"}</a>}/>
+			<Route path="/tasks/:id" exact={true} component={() => <a href="#" className="card-link">Remove</a>}/>
 			<Route path="/actions" exact={true} component={() => <a href="#" className="card-link">Delete Action</a>}/>
 			<Link className="card-link" to={updatePath}>Update</Link>
 		</div>

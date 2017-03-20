@@ -21,7 +21,8 @@ const mapDispatchToProps = (dispatch) => {
 		},
 		changeAction: (form) => {
 			console.log("update form ", form);
-			return axios.put(`actions/${form.id}`, form).then(() => {
+			const {id, toUpdate} = form;
+			return axios.put(`actions/${form.id}`, toUpdate).then(() => {
 				dispatch(updateAction(form));
 			})
 		},

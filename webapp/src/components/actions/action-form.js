@@ -69,8 +69,8 @@ const headersComponent = ({fields}) => {
 	</div>
 };
 
-const formComponent = (fields) => {
-	// console.log(JSON.stringify(fields));
+const formComponent = (props) => {
+	// console.log(JSON.stringify(props));
 	return <div>
 		<Field validate={(value) => value ? undefined : "Name Can't be empty"} className="form-control" name="name" label="Action Name" component={renderField} type="text" />
 		<Field validate={(value) => value ? undefined : "Delay Can't be empty"} className="form-control" name="delay" label="Delay Time" component={renderField} type="number" />

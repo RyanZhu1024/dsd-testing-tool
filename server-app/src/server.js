@@ -220,8 +220,10 @@ app.delete('/api/v1/actions/:actionId', (req, res) => {
 app.post('/api/v1/tasks', (req, res) => {
   let task = database.ref('tasks').push();
   req.body.createdAt = moment().format('MMMM Do YYYY, h:mm:ss a');
+  req.body.way = parseInt(req.body.way);
   task.set(req.body).then(() => {
-    res.json({success: 'ok'});
+    req.body.id = task.key;
+    res.json({success: 'ok', data: req.body});
   })
 });
 
@@ -237,7 +239,7 @@ app.get('/api/v1/tasks', (req, res) => {
           actions: child.val().actions,
           createdAt: child.val().createdAt,
           modifiedAt: child.val().modifiedAt,
-          killProcess: child.val().killProcess,
+          nodeIdsToKill: child.val().nodeIdsToKill,
           name: child.val().name,
         })
       }
@@ -258,7 +260,7 @@ app.get('/api/v1/tasks/:taskId', (req, res) => {
       actions: req.task.actions,
       createdAt: req.task.createdAt,
       modifiedAt: req.task.modifiedAt,
-      killProcess: req.task.killProcess,
+      nodeIdsToKill: req.task.nodeIdsToKill,
       name: req.task.name,
       deleted: req.task.deleted
     }
@@ -276,6 +278,7 @@ app.delete('/api/v1/tasks/:taskId', (req, res) => {
 
 app.put('/api/v1/tasks/:taskId', (req, res) => {
   req.body.modifiedAt = moment().format('MMMM Do YYYY, h:mm:ss a');
+  req.body.way = parseInt(req.body.way);
   database.ref(`tasks/${req.task.id}`).update(req.body).then(() => {
     res.json({success: 'ok'})
   })
@@ -304,7 +307,6 @@ app.get('/api/v1/tasks/:taskId/run', (req, res) => {
     if (req.task.way == 1) { //concurrently
       console.log("running concurrently");
       Promise.all(actionsProm).then((actions) => {
-        actions = actions.filter((act) => !act.disable);
         let actionArr = [];
         actions.map((action) => {
           for (let cnt = 0; cnt < action.repeat; cnt++) {
@@ -320,7 +322,6 @@ app.get('/api/v1/tasks/:taskId/run', (req, res) => {
     } else if (req.task.way == 2) { // sequentially
       console.log("running sequentially");
       Promise.all(actionsProm).then((actions) => {
-        actions = actions.filter((act) => !act.disable);
         let allActs = actions.reduce((acc, curAct) => {
           return acc.then((res) => {
             return executeSingleAction(curAct).then((responses) => {
@@ -360,8 +361,8 @@ const handleKillProcessResult = (taskId, res, nodeId) => {
 
 const killProcessFromTask = (task) => {
   let resultsProm = [];
-  if (task.killProcess) {
-    resultsProm = task.killProcess.nodeIds.map((nodeId) => {
+  if (task.nodeIdsToKill) {
+    resultsProm = task.nodeIdsToKill.map((nodeId) => {
         return killProcess(nodeId, (response) => {
           handleKillProcessResult(task.id, response, nodeId);
         }, (err) => {

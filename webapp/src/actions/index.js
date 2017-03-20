@@ -84,3 +84,17 @@ export const loadAllNodes = (nodes) => {
 		nodes
 	}
 };
+
+export const updateTask = (task) => {
+	return {
+		type: 'UPDATE_TASK',
+		task
+	}
+};
+
+export const createTask = (task) => {
+	return {
+		type: 'CREATE_TASK',
+		task
+	}
+};

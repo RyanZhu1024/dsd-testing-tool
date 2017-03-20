@@ -21,9 +21,7 @@
 ```js
 {
   name: name,
-  killProcess: {
-    nodeIds: [abcd]
-  },
+  nodeIdsToKill:  [abcd],
   killProcessResult: {
     "id": {
       completedAt: "February 27th 2017, 5:30:09 pm",

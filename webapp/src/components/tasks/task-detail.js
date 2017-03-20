@@ -15,7 +15,7 @@ export default class TaskDetail extends Component {
 		console.log(`TaskDetail componentWillMount :${task}`);
 		if (task) {
 			this.props.loadActionsByIds(task.actions);
-			this.props.loadNodesToKill(task.killProcess);
+			this.props.loadNodesToKill(task.nodeIdsToKill);
 		}
 	}
 
@@ -23,7 +23,7 @@ export default class TaskDetail extends Component {
 		if (this.props.task !== nextProps.task) {
 			console.log(`task componentWillReceiveProps :${nextProps.task}`);
 			this.props.loadActionsByIds(nextProps.task.actions);
-			this.props.loadNodesToKill(nextProps.task.killProcess);
+			this.props.loadNodesToKill(nextProps.task.nodeIdsToKill);
 		}
 	}
 
