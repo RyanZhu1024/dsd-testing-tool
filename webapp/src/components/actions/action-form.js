@@ -72,9 +72,9 @@ const headersComponent = ({fields}) => {
 const formComponent = (fields) => {
 	// console.log(JSON.stringify(fields));
 	return <div>
-		<Field className="form-control" {...fields.name.input} label="Action Name" component={renderField} type="text" />
-		<Field className="form-control" {...fields.delay.input} label="Delay Time" component={renderField} type="number" />
-		<Field className="form-control" {...fields.repeat.input} label="Repeat" component={renderField} type="number" />
+		<Field validate={(value) => value ? undefined : "Name Can't be empty"} className="form-control" name="name" label="Action Name" component={renderField} type="text" />
+		<Field validate={(value) => value ? undefined : "Delay Can't be empty"} className="form-control" name="delay" label="Delay Time" component={renderField} type="number" />
+		<Field validate={(value) => value ? undefined : "Repeat Can't be empty"} className="form-control" name="repeat" label="Repeat" component={renderField} type="number" />
 		<div className="form-group">
 			<label htmlFor="request"><h3>Request</h3></label>
 			<Fields names={['request.method','request.url', 'request.headers, request.data']} className="form-control" component={requestComponent} />

@@ -63,3 +63,17 @@ export const deleteAction = (id) => {
 		id
 	}
 };
+
+export const deleteTask = (id) => {
+	return {
+		type: 'DELETE_TASK',
+		id
+	}
+};
+
+export const loadActionOptions = (payload) => {
+	return {
+		type: 'LOAD_ACTION_OPTIONS',
+		payload
+	}
+}

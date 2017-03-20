@@ -4,7 +4,7 @@
 import {connect} from "react-redux";
 import Article from "../components/article.js";
 import {axios} from "../components/helpers.js";
-import {loadTasks, loadActionsByIds, loadNodesToKill} from "../actions";
+import {loadTasks, loadActionsByIds, loadNodesToKill, deleteTask, loadActionOptions} from "../actions";
 
 const getVisibleTasks = (tasks, filter) => {
 	switch (filter) {
@@ -19,7 +19,8 @@ const mapStateToProps = (state) => {
 	return {
 		tasks: getVisibleTasks(state.tasks, state.visibilityFilter),
 		taskActions: state.taskActions,
-		nodesToKill: state.nodesToKill
+		nodesToKill: state.nodesToKill,
+		actionOptions: state.actions
 	}
 };
 
@@ -51,6 +52,23 @@ const mapDispatchToProps = (dispatch) => {
 				dispatch(loadActionsByIds(actions));
 				console.log(`loadActionsByIds ${actions}`)
 			})
+		},
+		loadActionOptions: () => {
+			axios.get('actions').then((res) => {
+				dispatch(loadActionOptions(res.data.data));
+			});
+		},
+		createTask: (form, history) => {
+			console.log(`createTask ${JSON.stringify(form)}`);
+		},
+		changeTask: (form) => {
+			console.log(`changeTask ${form}`);
+		},
+		handleDelete: (id, history) => {
+			console.log(`handleDelete ${id}`);
+			axios.delete(`tasks/${id}`).then(() => {
+				dispatch(deleteTask(id));
+			}).then(() => history.replace("/tasks/new"));
 		}
 	}
 };

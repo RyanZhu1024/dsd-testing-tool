@@ -20,6 +20,7 @@ const singleAction = (state = {}, action) => {
 const actions = (state = [], action) => {
 	switch (action.type) {
 		case 'LOAD_ACTIONS':
+		case 'LOAD_ACTION_OPTIONS':
 			return action.payload;
 		case 'UPDATE_ACTION':
 			console.log(`Update Action${JSON.stringify(action.action)}`);

@@ -17,16 +17,23 @@ export default () => {
 
 		  <div className="collapse navbar-collapse" id="navbarSupportedContent">
 			  <ul className="navbar-nav mr-auto">
-				  <li className="nav-item active">
-					  <Link className="nav-link" to="/tasks">
+				  <li className="nav-item dropdown">
+					  <a className="nav-link dropdown-toggle" href="#" id="taskDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						  Tasks
-						  <span className="sr-only">(current)</span>
-					  </Link>
+					  </a>
+					  <div className="dropdown-menu" aria-labelledby="taskDropdown">
+						  <Link className="dropdown-item" to="/tasks">View Tasks</Link>
+						  <Link className="dropdown-item" to="/tasks/new">New Task</Link>
+					  </div>
 				  </li>
-				  <li className="nav-item">
-					  <Link className="nav-link" to="/actions" >
+				  <li className="nav-item dropdown">
+					  <a className="nav-link dropdown-toggle" href="#" id="actionDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						  Actions
-					  </Link>
+					  </a>
+					  <div className="dropdown-menu" aria-labelledby="actionDropdown">
+						  <Link className="dropdown-item" to="/actions">View Actions</Link>
+						  <Link className="dropdown-item" to="/actions/new">New Action</Link>
+					  </div>
 				  </li>
 			  </ul>
 			  <form className="form-inline my-2 my-lg-0">

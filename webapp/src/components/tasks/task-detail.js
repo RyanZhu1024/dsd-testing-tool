@@ -2,6 +2,7 @@
  * Created by shuxuan on 15/03/2017.
  */
 import React, {Component} from "react";
+import {Link} from "react-router-dom";
 import BasicInfo from "./task-basic-info.js";
 import ActionThumbnail from "../actions/action-thumbnail.js";
 import NodeThumbnail from "../nodes/node-thumbnail";
@@ -44,6 +45,15 @@ export default class TaskDetail extends Component {
 				nodes: this.props.nodesToKill
 			}
 		];
-		return (this.props.task && this.props.taskActions) ? <CollapseComponent components={components} /> : null;
+		return (this.props.task && this.props.taskActions) ?
+			<div>
+				<CollapseComponent components={components} />
+				<div className="btn-group" role="group">
+					<Link to={`/tasks/${this.props.task.id}/edit`} className="btn btn-primary" role="button" aria-pressed="true">Update</Link>
+					<button onClick={() => this.props.handleDelete(this.props.task.id, this.props.history)}
+					        className="btn btn-danger" type="button">Delete</button>
+				</div>
+			</div>
+			: null;
 	}
 }

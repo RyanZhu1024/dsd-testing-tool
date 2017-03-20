@@ -19,6 +19,8 @@ const tasks = (state = [], action) => {
 			];
 		case 'LOAD_TASKS':
 			return action.payload;
+		case 'DELETE_TASK':
+			return state.filter((task) => task.id !== action.id);
 		default:
 			return state;
 	}
