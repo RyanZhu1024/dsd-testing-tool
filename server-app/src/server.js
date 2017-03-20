@@ -56,6 +56,21 @@ app.get('/api/v1/node-info', (req, res) => {
   });
 });
 
+app.get('/api/v1/nodes', (req, res) => {
+  database.ref('nodes').once('value', (snapshot) => {
+    let nodes = [];
+    snapshot.forEach((child) => {
+      console.log(`Node Id: ${child.key}`);
+      nodes.push(Object.assign({}, child.val(), {id: child.key}))
+    });
+    console.log(`Nodes: ${JSON.stringify(nodes)}`);
+    res.json({
+      success: 'ok',
+      data: nodes
+    });
+  })
+});
+
 app.param('nodeId', (req,res, next, nodeId) => {
   database.ref("nodes/" + nodeId).once('value').then((snapshot) => {
     const node = snapshot.val();

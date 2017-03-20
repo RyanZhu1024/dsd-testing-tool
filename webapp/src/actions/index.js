@@ -76,4 +76,11 @@ export const loadActionOptions = (payload) => {
 		type: 'LOAD_ACTION_OPTIONS',
 		payload
 	}
-}
+};
+
+export const loadAllNodes = (nodes) => {
+	return {
+		type: 'LOAD_ALL_NODES',
+		nodes
+	}
+};

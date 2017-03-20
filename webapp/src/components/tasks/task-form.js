@@ -45,13 +45,26 @@ const renderField = ({ input, label, type, meta: { touched, error} }) => {
 };
 
 const formComponent = (props) => {
-	// const {actionOptions} = props;
+	const {nodes,actionOptions} = props;
 	return <div>
-		<Field validate={(value) => value ? undefined : "Name Can't be empty"} className="form-control" name="name" label="Task Name" component={renderField} type="text" />
-		<Field validate={(value) => value ? undefined : "Way Can't be empty"} className="form-control" component={renderSelect} name="way" label="Way To Run"
+		<Field validate={(value) => value ? undefined : "Name Can't be empty"} className="form-control" name="name"
+		       label="Task Name" component={renderField} type="text" />
+
+		<Field validate={(value) => value ? undefined : "Way Can't be empty"} className="form-control"
+		       component={renderSelect} name="way" label="Way To Run"
 		       multiple={false} options={[{key: 1, value: "Concurrently"}, {key: 2, value: "Sequentially"}]} />
-		<Field validate={(value) => value ? undefined : "Way Can't be empty"} className="form-control" component={renderMultiSelect} name="actions" label="Way To Run"
-		       options={props.actionOptions ? props.actionOptions.map(act => {return {key: act.id, value: act.name}}) : []} />
+
+		<Field validate={(value) => value ? undefined : "Actions Can't be empty"} className="form-control"
+		       component={renderMultiSelect} name="actions" label="Actions"
+		       options={actionOptions ? actionOptions.map(act => {return {key: act.id, value: act.name}}) : []} />
+
+		<Field validate={(value) => value ? undefined : "Verify Actions Can't be empty"} className="form-control"
+		       component={renderMultiSelect} name="verifyActions" label="Verify Actions"
+		       options={actionOptions ? actionOptions.map(act => {return {key: act.id, value: act.name}}) : []} />
+
+		<Field validate={(value) => value ? undefined : "Nodes to Kill Can't be empty"} className="form-control"
+		       component={renderMultiSelect} name="killProcess.nodeIds" label="Nodes to Kill"
+		       options={nodes ? nodes.map(node => {return {key: node.id, value: node.ip}}) : []} />
 	</div>
 };
 
@@ -59,14 +72,15 @@ class TaskForm extends Component {
 
 	componentWillMount() {
 		this.props.loadActionOptions();
+		this.props.loadAllNodes();
 	}
 
 	render () {
-		const {submitting, pristine, handleSubmit, actionOptions} = this.props;
+		const {submitting, pristine, handleSubmit, actionOptions, nodes} = this.props;
 		return <form onSubmit={handleSubmit}>
 			<Fields names={[
 				'name', 'way', 'actions', 'killProcess', 'verifyActions'
-			]} actionOptions={actionOptions} component={formComponent}/>
+			]} actionOptions={actionOptions} nodes={nodes} component={formComponent}/>
 			<Switch>
 				<Route path="/tasks/new" exact={true} render={() => <button type="submit" disabled={submitting || pristine} className="btn btn-primary">Create</button>}/>
 				<Route path="/tasks/:id/edit" render={({match}) => <ButtonGroup id={match.params.id} {...this.props}/>}/>

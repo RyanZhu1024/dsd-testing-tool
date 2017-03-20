@@ -12,7 +12,7 @@ export default (props) => {
 			<Switch>
 				<Route path="/tasks" exact={true} render={() => <h3>Select a task from left to view</h3> } />
 				<Route path="/actions" exact={true} render={() => <h3>Select an action from left to view</h3> } />
-				<Route path="/tasks/new" exact={true} render={() => <TaskForm onSubmit={(form) => props.createTask(form, props.history)} {...props} />}  />
+				<Route path="/tasks/new" exact={true} render={() => <TaskForm initialValues={{actions: [], verifyActions: [], killProcess: {nodeIds: []}}} onSubmit={(form) => props.createTask(form, props.history)} {...props} />}  />
 				<Route path="/actions/new" exact={true} render={() => <ActionForm initialValues={{repeat: 1, delay: 0}} onSubmit={(form) => props.createAction(form, props.history)} {...props} />}  />
 				<Route path="/tasks/:id/edit" render={({match}) => <TaskForm onSubmit={props.changeTask} initialValues={props.tasks.find((t) => t.id === match.params.id)} {...props} /> }/>
 				<Route path="/tasks/:id" render={({match}) => <TaskDetail task={props.tasks.find((t) => t.id === match.params.id)} {...props}/> }/>
