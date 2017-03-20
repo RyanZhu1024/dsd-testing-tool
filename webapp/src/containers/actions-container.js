@@ -9,6 +9,7 @@ import {loadActions, createAction, updateAction, deleteAction} from "../actions"
 const mapStateToProps = (state) => {
 	return {
 		actions: state.actions,
+		alert: state.alert
 	}
 };
 
@@ -21,7 +22,7 @@ const mapDispatchToProps = (dispatch) => {
 		},
 		changeAction: (form) => {
 			console.log("update form ", form);
-			const {id, toUpdate} = form;
+			const {id, ...toUpdate} = form;
 			return axios.put(`actions/${form.id}`, toUpdate).then(() => {
 				dispatch(updateAction(form));
 			})

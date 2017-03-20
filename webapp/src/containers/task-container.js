@@ -4,7 +4,17 @@
 import {connect} from "react-redux";
 import Article from "../components/article.js";
 import {axios} from "../components/helpers.js";
-import {createTask, updateTask, loadTasks, loadActionsByIds, loadNodesToKill, deleteTask, loadActionOptions, loadAllNodes} from "../actions";
+import {
+	alert,
+	createTask,
+	updateTask,
+	loadTasks,
+	loadActionsByIds,
+	loadNodesToKill,
+	deleteTask,
+	loadActionOptions,
+	loadAllNodes
+} from "../actions";
 
 const getVisibleTasks = (tasks, filter) => {
 	switch (filter) {
@@ -21,7 +31,8 @@ const mapStateToProps = (state) => {
 		taskActions: state.taskActions,
 		nodesToKill: state.nodesToKill,
 		actionOptions: state.actions,
-		nodes: state.nodes
+		nodes: state.nodes,
+		alert: state.alert
 	}
 };
 
@@ -68,7 +79,7 @@ const mapDispatchToProps = (dispatch) => {
 		},
 		changeTask: (form) => {
 			console.log(`changeTask ${JSON.stringify(form)}`);
-			const {id, toUpdate} = form;
+			const {id, ...toUpdate} = form;
 			return axios.put(`tasks/${id}`, toUpdate).then(() => {
 				dispatch(updateTask(form));
 			})
@@ -77,13 +88,22 @@ const mapDispatchToProps = (dispatch) => {
 			console.log(`handleDelete ${id}`);
 			axios.delete(`tasks/${id}`).then(() => {
 				dispatch(deleteTask(id));
-			}).then(() => history.replace("/tasks/new"));
+				history.replace("/tasks/new");
+			});
 		},
 		loadAllNodes: () => {
 			console.log(`loadAllNodes`);
 			axios.get('nodes').then((res) => {
 				dispatch(loadAllNodes(res.data.data));
 			});
+		},
+		runTask: (id) => {
+			console.log(`Run task: ${id}`);
+			axios.get(`tasks/${id}/run`).then(() => {
+				dispatch(alert({show: true, message: "The task is running", level: "success"}));
+			}).catch(error => {
+				dispatch(alert({show: true, message: `Run task failed due to ${error}`, level: "danger"}));
+			})
 		}
 	}
 };

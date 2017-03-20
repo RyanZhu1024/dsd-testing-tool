@@ -6,6 +6,7 @@ import taskActions from "./task-actions";
 import nodesToKill from "./nodes-to-kill";
 import selectedAction from "./select-action";
 import nodes from "./nodes";
+import alert from "./alert";
 import {reducer as formReducer} from "redux-form";
 
 export default combineReducers({
@@ -16,5 +17,6 @@ export default combineReducers({
 	nodesToKill,
 	selectedAction,
 	nodes,
+	alert,
 	form: formReducer
 });

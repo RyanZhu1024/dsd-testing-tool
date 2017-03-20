@@ -30,8 +30,10 @@ const initialTask = (task) => {
 };
 
 export default (props) => {
+	const {alert, closeAlert} = props;
 	return (
 		<div>
+			{/*{alert.show ? <AlertComponent closeAlert={closeAlert} level={alert.level} message={alert.message} /> : null}*/}
 			<Switch>
 				<Route path="/tasks" exact={true}
 				       render={() => <h3>Select a task from left to view</h3> } />

@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Provider} from "react-redux";
 import {createStore} from "redux";
 import reducers from "./reducers";
-import App from "./components/app.js";
+import AppContainer from "./containers/app-container";
 import Axios from "axios";
 
 const store = createStore(reducers);
@@ -21,7 +21,7 @@ export default class Root extends Component {
   render() {
     return (
       <Provider store={store}>
-        <App />
+        <AppContainer />
       </Provider>
     )
   }

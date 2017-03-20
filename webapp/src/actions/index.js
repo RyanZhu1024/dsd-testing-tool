@@ -98,3 +98,16 @@ export const createTask = (task) => {
 		task
 	}
 };
+
+export const alert = (alert) => {
+	return {
+		type: 'ALERT',
+		alert
+	}
+};
+
+export const closeAlert = () => {
+	return {
+		type: 'CLOSE_ALERT'
+	}
+};

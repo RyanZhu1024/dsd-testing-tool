@@ -364,8 +364,16 @@ const killProcessFromTask = (task) => {
   if (task.nodeIdsToKill) {
     resultsProm = task.nodeIdsToKill.map((nodeId) => {
         return killProcess(nodeId, (response) => {
+          console.log(`killProcessFromTask success ${response}`);
           handleKillProcessResult(task.id, response, nodeId);
         }, (err) => {
+          console.log(`killProcessFromTask error ${err}`);
+          if (!err.response) {
+            err.response = {
+              status: err.code,
+              data: err.errno,
+            }
+          }
           handleKillProcessResult(task.id, err.response, nodeId)
         })
     });
@@ -403,7 +411,10 @@ const executeSingleAction = (action) => {
 const makeRequest = (action) => {
   let headers = {};
   let requestVar = Object.assign({}, action.request);
-  requestVar.headers.map(({key, value}) => Object.assign(headers, {key: value}));
+  if (requestVar.headers) {
+    console.log(requestVar.headers);
+    requestVar.headers.map(({key, value}) => Object.assign(headers, {key: value}));
+  }
   requestVar.headers = headers;
   return axios.request(requestVar).then((res) => {
     console.log(`completed action: ${action.name}`);
