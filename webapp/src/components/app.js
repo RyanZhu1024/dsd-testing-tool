@@ -10,12 +10,12 @@ export default (props) => {
     <Router forceRefresh={false}>
       <div className="container">
         <Header />
-        <Route exact={true} path="/" component={Welcome} />
-        <Route path="/tasks" component={TaskContainer} />
-        <Route path="/actions" component={ActionContainer} />
-        {/*<Route exact={true} path="/" render={() => <Welcome {...props}/> }  />*/}
-        {/*<Route path="/tasks" render={() => <TaskContainer {...props}/>}     />*/}
-        {/*<Route path="/actions" render={() => <ActionContainer {...props}/>} />*/}
+        {/*<Route exact={true} path="/" component={Welcome} />*/}
+        {/*<Route path="/tasks" component={TaskContainer} />*/}
+        {/*<Route path="/actions" component={ActionContainer} />*/}
+        <Route exact={true} path="/" render={() => <Welcome {...props}/> }  />
+        <Route path="/tasks" render={() => <TaskContainer {...props}/>}     />
+        <Route path="/actions" render={() => <ActionContainer {...props}/>} />
       </div>
     </Router>
   )
