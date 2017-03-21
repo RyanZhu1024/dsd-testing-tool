@@ -4,18 +4,19 @@
 import React, {Component} from "react";
 
 export default class AlertComponent extends Component {
-	componentWillMount() {
-		console.log(`mounting alert component and will be closed in 3 seconds ${this.props.closeAlert}`);
-		setTimeout(this.props.closeAlert, 5000);
+
+	componentWillReceiveProps(nextProps) {
+		const {alert, closeAlert} = nextProps;
+		if (alert.show) {
+			console.log(`alert component ${alert.show}, set timeout for 3 seconds`);
+			setTimeout(closeAlert, 3000);
+		}
 	}
 
 	render () {
-		const {level, message} = this.props;
-		return <div className={`alert alert-${level} alert-dismissible fade show`} role="alert">
-			<button type="button" className="close" data-dismiss="alert" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-			</button>
-			<strong>Great!</strong> {message}
-		</div>
+		const {alert} = this.props;
+		return alert.show ? <div className={`alert alert-${alert.level}`} role="alert">
+			<strong>Great!</strong> {alert.message}
+		</div> : null;
 	}
 }

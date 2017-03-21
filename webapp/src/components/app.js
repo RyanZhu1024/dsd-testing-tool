@@ -14,8 +14,8 @@ export default (props) => {
         {/*<Route path="/tasks" component={TaskContainer} />*/}
         {/*<Route path="/actions" component={ActionContainer} />*/}
         <Route exact={true} path="/" render={() => <Welcome {...props}/> }  />
-        <Route path="/tasks" render={() => <TaskContainer {...props}/>}     />
-        <Route path="/actions" render={() => <ActionContainer {...props}/>} />
+        <Route path="/tasks" render={({location}) => <TaskContainer location={location} {...props}/>}     />
+        <Route path="/actions" render={(location) => <ActionContainer location={location} {...props}/>} />
       </div>
     </Router>
   )
