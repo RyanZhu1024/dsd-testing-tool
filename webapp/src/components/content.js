@@ -6,6 +6,7 @@ import {Route, Switch} from "react-router-dom";
 import TaskDetail from "./tasks/task-detail";
 import ActionForm from "./actions/action-form";
 import TaskForm from "./tasks/task-form";
+import AlertComponent from './alert-component';
 
 const renderActionForm = (match,props) => {
 	const obj = props.actions.find((act) => act.id === match.params.id);
@@ -33,7 +34,7 @@ export default (props) => {
 	const {alert, closeAlert} = props;
 	return (
 		<div>
-			{/*{alert.show ? <AlertComponent closeAlert={closeAlert} level={alert.level} message={alert.message} /> : null}*/}
+			<AlertComponent alert={alert} closeAlert={closeAlert} />
 			<Switch>
 				<Route path="/tasks" exact={true}
 				       render={() => <h3>Select a task from left to view</h3> } />
