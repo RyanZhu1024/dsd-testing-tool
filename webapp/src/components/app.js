@@ -13,7 +13,7 @@ export default (props) => {
         {/*<Route exact={true} path="/" component={Welcome} />*/}
         {/*<Route path="/tasks" component={TaskContainer} />*/}
         {/*<Route path="/actions" component={ActionContainer} />*/}
-        //we have to extract location props from route when render a container component in react router
+        {/*we have to extract location props from route when render a container component in react router*/}
         <Route exact={true} path="/" render={() => <Welcome {...props}/> }  />
         <Route path="/tasks" render={({location}) => <TaskContainer location={location} {...props}/>}     />
         <Route path="/actions" render={(location) => <ActionContainer location={location} {...props}/>} />
