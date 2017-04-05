@@ -62,7 +62,7 @@ const formComponent = (props) => {
 
 		<Field validate={(value) => value ? undefined : "Nodes to Kill Can't be empty"} className="form-control"
 		       component={renderMultiSelect} name="nodeIdsToKill" label="Nodes to Kill"
-		       options={nodes.map(node => {node.display = node.ip; return node;})} />
+		       options={nodes.map(node => {node.display = `${node.ip}:${node.nodePort}`; return node;})} />
 	</div>
 };
 
