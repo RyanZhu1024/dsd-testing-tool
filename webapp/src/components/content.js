@@ -7,6 +7,8 @@ import TaskDetail from "./tasks/task-detail";
 import ActionForm from "./actions/action-form";
 import TaskForm from "./tasks/task-form";
 import AlertComponent from './alert-component';
+import TaskActionsResults from './tasks/task-actions-results';
+import TaskVerifyResults from './tasks/task-verify-results';
 
 const renderActionForm = (match,props) => {
 	const obj = props.actions.find((act) => act.id === match.params.id);
@@ -56,10 +58,10 @@ export default (props) => {
 				                                      {...props} /> }
 				/>
 				<Route exact={true} path="/tasks/:id/results"
-					   render={({match}) => <h3>Results for Task: {match.params.id}</h3> }
+					   render={({match}) => <TaskActionsResults task={props.tasks.find((t) => t.id === match.params.id)} {...props}/> }
 				/>
 				<Route exact={true} path="/tasks/:id/results/verify"
-					   render={({match}) => <h3>Verify Results for Task: {match.params.id}</h3> }
+					   render={({match}) => <TaskVerifyResults task={props.tasks.find((t) => t.id === match.params.id)} {...props} /> }
 				/>
 				<Route path="/tasks/:id"
 				       render={({match}) => <TaskDetail task={props.tasks.find((t) => t.id === match.params.id)}

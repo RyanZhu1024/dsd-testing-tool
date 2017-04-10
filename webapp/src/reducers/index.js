@@ -5,6 +5,7 @@ import visibilityFilter from "./visibilityFilter.js";
 import taskActions from "./task-actions";
 import nodesToKill from "./nodes-to-kill";
 import selectedAction from "./select-action";
+import selectedTask from './selected-task';
 import nodes from "./nodes";
 import alert from "./alert";
 import {reducer as formReducer} from "redux-form";
@@ -16,6 +17,7 @@ export default combineReducers({
 	taskActions,
 	nodesToKill,
 	selectedAction,
+    selectedTask,
 	nodes,
 	alert,
 	form: formReducer

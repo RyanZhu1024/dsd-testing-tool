@@ -111,3 +111,10 @@ export const closeAlert = () => {
 		type: 'CLOSE_ALERT'
 	}
 };
+
+export const getTasksById = (task) => {
+    return {
+        type: 'GET_TASK_BY_ID',
+        task
+    }
+};

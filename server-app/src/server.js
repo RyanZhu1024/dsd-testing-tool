@@ -143,10 +143,18 @@ app.get('/api/v1/generate-node-id', (req, res) => {
   res.send(nodeId);
 });
 
+const convertResponsesToArray = (responses) => {
+  return responses ? Object.keys(responses).map((key) => {
+    return {key: key, value: responses[key]}
+  }).reverse() : responses;
+};
+
 app.param('taskId', (req, res, next, taskId) => {
   database.ref(`tasks/${taskId}`).once('value').then((snapshot) => {
     let task = snapshot.val();
     task.id = taskId;
+    task.responses = convertResponsesToArray(task.responses);
+    task.verifyResponses = convertResponsesToArray(task.verifyResponses);
     console.log(`current task: ${taskId}`);
     req.task = task;
     next();
@@ -253,16 +261,7 @@ app.get('/api/v1/tasks', (req, res) => {
 app.get('/api/v1/tasks/:taskId', (req, res) => {
   res.json({
     success: 'ok',
-    data: {
-      id: req.task.id,
-      way: req.task.way,
-      actions: req.task.actions,
-      createdAt: req.task.createdAt,
-      modifiedAt: req.task.modifiedAt,
-      nodeIdsToKill: req.task.nodeIdsToKill,
-      name: req.task.name,
-      deleted: req.task.deleted
-    }
+    data: req.task
   });
 });
 

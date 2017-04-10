@@ -13,7 +13,8 @@ import {
 	loadNodesToKill,
 	deleteTask,
 	loadActionOptions,
-	loadAllNodes
+	loadAllNodes,
+    getTasksById
 } from "../actions";
 
 const getVisibleTasks = (tasks, filter) => {
@@ -32,7 +33,8 @@ const mapStateToProps = (state) => {
 		nodesToKill: state.nodesToKill,
 		actionOptions: state.actions,
 		nodes: state.nodes,
-		alert: state.alert
+		alert: state.alert,
+		selectedTask: state.selectedTask
 	}
 };
 
@@ -112,6 +114,12 @@ const mapDispatchToProps = (dispatch) => {
             }).catch(error => {
                 dispatch(alert({show: true, message: `Verify task failed due to ${error}`, level: "danger"}));
             })
+		},
+		getTaskById: (id) => {
+			console.log(`get task by id: ${id}`);
+			axios.get(`tasks/${id}`).then((res) => {
+				dispatch(getTasksById(res.data.data))
+			})
 		}
 	}
 };
