@@ -104,6 +104,14 @@ const mapDispatchToProps = (dispatch) => {
 			}).catch(error => {
 				dispatch(alert({show: true, message: `Run task failed due to ${error}`, level: "danger"}));
 			})
+		},
+        verifyTask: (id) => {
+            console.log(`Verify task: ${id}`);
+            axios.get(`tasks/${id}/verify`).then(() => {
+                dispatch(alert({show: true, message: "The task is being verified", level: "success"}));
+            }).catch(error => {
+                dispatch(alert({show: true, message: `Verify task failed due to ${error}`, level: "danger"}));
+            })
 		}
 	}
 };

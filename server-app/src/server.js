@@ -148,7 +148,6 @@ app.param('taskId', (req, res, next, taskId) => {
     let task = snapshot.val();
     task.id = taskId;
     console.log(`current task: ${taskId}`);
-    console.log(`deleted: ${task.deleted}`);
     req.task = task;
     next();
   })

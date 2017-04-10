@@ -55,6 +55,12 @@ export default (props) => {
 				                                      initialValues={initialTask(props.tasks.find((t) => t.id === match.params.id))}
 				                                      {...props} /> }
 				/>
+				<Route exact={true} path="/tasks/:id/results"
+					   render={({match}) => <h3>Results for Task: {match.params.id}</h3> }
+				/>
+				<Route exact={true} path="/tasks/:id/results/verify"
+					   render={({match}) => <h3>Verify Results for Task: {match.params.id}</h3> }
+				/>
 				<Route path="/tasks/:id"
 				       render={({match}) => <TaskDetail task={props.tasks.find((t) => t.id === match.params.id)}
 				                                        {...props}/> }

@@ -7,6 +7,8 @@ import {NavLink, Route, Switch} from "react-router-dom";
 const TaskListItem = ({task}) => {
 	return <Switch>
 			<Route path="/tasks/:id/edit" exact={true} render={() => <NavLink activeClassName="active" className="list-group-item list-group-item-action" to={`/tasks/${task.id}/edit`}>{task.name}</NavLink>}/>
+			<Route path="/tasks/:id/results" exact={true} render={() => <NavLink activeClassName="active" className="list-group-item list-group-item-action" to={`/tasks/${task.id}/results`}>{task.name}</NavLink>}/>
+			<Route path="/tasks/:id/results/verify" exact={true} render={() => <NavLink activeClassName="active" className="list-group-item list-group-item-action" to={`/tasks/${task.id}/results/verify`}>{task.name}</NavLink>}/>
 			<Route path="/tasks" render={() => <NavLink activeClassName="active" className="list-group-item list-group-item-action" to={`/tasks/${task.id}`}>{task.name}</NavLink>}/>
 		</Switch>
 };
