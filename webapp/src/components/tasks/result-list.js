@@ -10,12 +10,13 @@ export default class ResultList extends Component {
         this.props.loadActionsByIds(actions);
     }
     shouldComponentUpdate(nextProps, nextState) {
-        return this.props.selectedTask.id !== nextProps.selectedTask.id || this.props.taskActions.length === 0;
+        return this.props.selectedTask.id !== nextProps.selectedTask.id ||
+            this.props.taskActions === nextProps.taskActions;
     }
     render() {
         return (
             <div className="list-group">
-                {this.props.selectedTask.responses.map((response, index) => {
+                {this.props.responses.map((response, index) => {
                     return <ResultListItem key={index} response={response} {...this.props}/>
                 })}
             </div>

@@ -6,6 +6,12 @@ import ResultList from './result-list';
 
 export default class TaskActionResults extends Component {
 
+    componentWillMount() {
+        if (this.props.task) {
+            this.props.getTaskById(this.props.task.id)
+        }
+    }
+
     componentWillReceiveProps(nextProps) {
         if (this.props.task !== nextProps.task) {
             nextProps.getTaskById(nextProps.task.id);
@@ -13,6 +19,6 @@ export default class TaskActionResults extends Component {
     }
 
     render() {
-        return this.props.selectedTask.responses ? <ResultList {...this.props}/> : null;
+        return this.props.selectedTask.responses ? <ResultList responses={this.props.selectedTask.responses} {...this.props}/> : null;
     }
 }
