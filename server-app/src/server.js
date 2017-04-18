@@ -4,11 +4,13 @@ import * as firebase from "firebase";
 import ipaddr from 'ipaddr.js';
 import bodyParser from 'body-parser';
 import moment from 'moment';
+import cron from 'node-cron';
 
 const TaskResScope = {
   responses: "responses",
   verifyResponses: "verifyResponses"
 };
+
 
 let app = Express();
 
@@ -38,6 +40,35 @@ let addPyInfo = (pyInfo) => {
 };
 
 app.use(bodyParser.json());
+
+const getNodesProm = (nodes) => {
+  return nodes.map((node) => {
+    return axios.get(`http://${node.ip}:${node.nodePort}`).then((res) => {
+      return {id: node.id, status: res.status}
+    }).catch(() => {
+      return {id: node.id, status: 500}
+    })
+  })
+};
+
+cron.schedule('* * * * *', () => {
+  console.log('check all nodes status every minute');
+  database.ref('nodes').once('value', (snapshot) => {
+    let nodes = [];
+    snapshot.forEach((child) => {
+      console.log(`Node Id: ${child.key}`);
+      nodes.push(Object.assign({}, child.val(), {id: child.key}))
+    });
+    Promise.all(getNodesProm(nodes)).then((results) => {
+      console.log(results);
+      results.map((result) => {
+        database.ref("nodes/" + result.id).update({
+          status: result.status < 500 ? 'online' : 'offline'
+        })
+      })
+    })
+  });
+});
 
 app.get('/', (req, res) => {
   res.send('hello world');

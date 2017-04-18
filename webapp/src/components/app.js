@@ -4,6 +4,7 @@ import Header from "./header.js";
 import Welcome from "./welcome.js";
 import TaskContainer from "../containers/task-container.js";
 import ActionContainer from "../containers/actions-container";
+import NodeContainer from '../containers/node-container';
 
 export default (props) => {
   return (
@@ -17,6 +18,7 @@ export default (props) => {
         <Route exact={true} path="/" render={() => <Welcome {...props}/> }  />
         <Route path="/tasks" render={({location}) => <TaskContainer location={location} {...props}/>}     />
         <Route path="/actions" render={(location) => <ActionContainer location={location} {...props}/>} />
+        <Route path="/nodes" render={(location) => <NodeContainer location={location} {...props}/>} />
       </div>
     </Router>
   )

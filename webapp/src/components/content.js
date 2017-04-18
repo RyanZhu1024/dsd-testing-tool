@@ -4,6 +4,7 @@
 import React from "react";
 import {Route, Switch} from "react-router-dom";
 import TaskDetail from "./tasks/task-detail";
+import NodeDetail from './nodes/node-detail';
 import ActionForm from "./actions/action-form";
 import TaskForm from "./tasks/task-form";
 import AlertComponent from './alert-component';
@@ -38,6 +39,13 @@ export default (props) => {
 		<div>
 			<AlertComponent alert={alert} closeAlert={closeAlert} />
 			<Switch>
+				<Route path="/nodes" exact={true}
+					   render={() => <h3>Select a node from left to view</h3>} />
+				<Route path="/nodes/:id"
+					   render={({match}) =>
+						   <NodeDetail node={props.nodes.find((t) => t.id === match.params.id)}
+								{...props}/> }
+				/>
 				<Route path="/tasks" exact={true}
 				       render={() => <h3>Select a task from left to view</h3> } />
 				<Route path="/actions" exact={true}
