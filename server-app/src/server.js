@@ -5,6 +5,7 @@ import ipaddr from 'ipaddr.js';
 import bodyParser from 'body-parser';
 import moment from 'moment';
 import cron from 'node-cron';
+import _ from 'lodash';
 
 const TaskResScope = {
   responses: "responses",
@@ -45,8 +46,13 @@ const getNodesProm = (nodes) => {
   return nodes.map((node) => {
     return axios.get(`http://${node.ip}:${node.nodePort}`).then((res) => {
       return {id: node.id, status: res.status}
-    }).catch(() => {
-      return {id: node.id, status: 500}
+    }).catch((err) => {
+      if (err.response) {
+        console.log(err.response.status);
+        return {id: node.id, status: err.response.status}
+      } else {
+        return {id: node.id, status: 500}
+      }
     })
   })
 };
@@ -60,12 +66,13 @@ cron.schedule('* * * * *', () => {
       nodes.push(Object.assign({}, child.val(), {id: child.key}))
     });
     Promise.all(getNodesProm(nodes)).then((results) => {
-      console.log(results);
       results.map((result) => {
         database.ref("nodes/" + result.id).update({
           status: result.status < 500 ? 'online' : 'offline'
         })
       })
+    }).catch((err) => {
+      console.log(err);
     })
   });
 });
@@ -279,6 +286,7 @@ app.get('/api/v1/tasks', (req, res) => {
           modifiedAt: child.val().modifiedAt,
           nodeIdsToKill: child.val().nodeIdsToKill,
           name: child.val().name,
+          randomKill: child.val().randomKill
         })
       }
     });
@@ -329,15 +337,37 @@ app.get('/api/v1/tasks/:taskId/verify', (req, res) => {
   res.json({success: 'ok'});
 });
 
+const randomlyKill = (task) => {
+  if (task.nodeIdsToKill && task.nodeIdsToKill.length > 1) {
+    let kill = Math.random() > 0.5;
+    if (kill) {
+      let nodeIdsToKill = randomlySelectNode(task);
+      doKillProcesses(nodeIdsToKill, task);
+      console.log("kill node " + nodeIdsToKill.length)
+    } else {
+      console.log("kill node pass")
+    }
+  }
+};
+
+const randomlySelectNode = (task) => {
+  let cnt = _.random(1, task.nodeIdsToKill.length - 1);
+  let result = _.sampleSize(task.nodeIdsToKill, cnt);
+  task.nodeIdsToKill = task.nodeIdsToKill.filter((item) => !result.includes(item));
+  return result;
+};
 
 app.get('/api/v1/tasks/:taskId/run', (req, res) => {
-  killProcessFromTask(req.task).then(() => {
+  // randomly kill processes
+  if (req.task.randomKill) {
     let actionsProm = getActionsProm(req.task.actions, req);
     if (req.task.way == 1) { //concurrently
       console.log("running concurrently");
       Promise.all(actionsProm).then((actions) => {
         let actionArr = [];
         actions.map((action) => {
+          action.randomKill = req.task.randomKill;
+          action.task = req.task;
           for (let cnt = 0; cnt < action.repeat; cnt++) {
             actionArr.push(runActionWithTimeout(action));
           }
@@ -352,6 +382,8 @@ app.get('/api/v1/tasks/:taskId/run', (req, res) => {
       console.log("running sequentially");
       Promise.all(actionsProm).then((actions) => {
         let allActs = actions.reduce((acc, curAct) => {
+          curAct.randomKill = req.task.randomKill;
+          curAct.task = req.task;
           return acc.then((res) => {
             return executeSingleAction(curAct).then((responses) => {
               console.log("in root function " + responses);
@@ -365,7 +397,44 @@ app.get('/api/v1/tasks/:taskId/run', (req, res) => {
         })
       });
     }
-  });
+  } else {
+    // kill processes before all actions
+    killProcessFromTask(req.task).then(() => {
+      let actionsProm = getActionsProm(req.task.actions, req);
+      if (req.task.way == 1) { //concurrently
+        console.log("running concurrently");
+        Promise.all(actionsProm).then((actions) => {
+          let actionArr = [];
+          actions.map((action) => {
+            for (let cnt = 0; cnt < action.repeat; cnt++) {
+              actionArr.push(runActionWithTimeout(action));
+            }
+          });
+          console.log("start running: " + actionArr);
+          axios.all(actionArr).then((responses) => {
+            console.log("All actions completed " + responses.length);
+            handleTaskRes(responses, req.task, TaskResScope.responses);
+          });
+        })
+      } else if (req.task.way == 2) { // sequentially
+        console.log("running sequentially");
+        Promise.all(actionsProm).then((actions) => {
+          let allActs = actions.reduce((acc, curAct) => {
+            return acc.then((res) => {
+              return executeSingleAction(curAct).then((responses) => {
+                console.log("in root function " + responses);
+                return res.concat(responses);
+              })
+            })
+          }, Promise.resolve([]));
+          allActs.then((responses) => {
+            console.log("complete all actions");
+            handleTaskRes(responses, req.task, TaskResScope.responses);
+          })
+        });
+      }
+    });
+  }
   res.json({success: 'ok'})
 });
 
@@ -388,30 +457,37 @@ const handleKillProcessResult = (taskId, res, nodeId) => {
   })
 };
 
+const doKillProcesses = (nodeIdsToKill, task) => {
+  return nodeIdsToKill.map((nodeId) => {
+    return killProcess(nodeId, (response) => {
+      console.log(`killProcessFromTask success ${response}`);
+      handleKillProcessResult(task.id, response, nodeId);
+    }, (err) => {
+      console.log(`killProcessFromTask error ${err}`);
+      if (!err.response) {
+        err.response = {
+          status: err.code,
+          data: err.errno,
+        }
+      }
+      handleKillProcessResult(task.id, err.response, nodeId)
+    })
+  });
+};
+
 const killProcessFromTask = (task) => {
   let resultsProm = [];
   if (task.nodeIdsToKill) {
-    resultsProm = task.nodeIdsToKill.map((nodeId) => {
-        return killProcess(nodeId, (response) => {
-          console.log(`killProcessFromTask success ${response}`);
-          handleKillProcessResult(task.id, response, nodeId);
-        }, (err) => {
-          console.log(`killProcessFromTask error ${err}`);
-          if (!err.response) {
-            err.response = {
-              status: err.code,
-              data: err.errno,
-            }
-          }
-          handleKillProcessResult(task.id, err.response, nodeId)
-        })
-    });
+    resultsProm = doKillProcesses(task.nodeIdsToKill, task);
   }
   return Promise.all(resultsProm);
 };
 
 let mm = 0;
 const runActionWithTimeout = (action) => {
+  if (action.randomKill) {
+    randomlyKill(action.task);
+  }
   return new Promise(resolve => {
     setTimeout(() => {
       makeRequest(action).then((response) => {

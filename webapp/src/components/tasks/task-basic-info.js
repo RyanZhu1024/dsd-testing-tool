@@ -26,6 +26,10 @@ export default ({task}) => {
 				<td>Modified At</td>
 				<td>{task.modifiedAt ? task.modifiedAt : task.createdAt}</td>
 			</tr>
+			<tr>
+				<td>Randomly Kill Nodes</td>
+				<td>{task.randomKill ? 'Yes' : 'No'}</td>
+			</tr>
 		</tbody>
 	</table>) : null;
 }
