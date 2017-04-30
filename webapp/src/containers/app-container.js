@@ -3,10 +3,16 @@
  */
 import {connect} from "react-redux";
 import App from "../components/app";
-import {closeAlert} from "../actions";
+import {closeAlert, loadAllProjects} from "../actions";
+import {axios} from "../components/helpers.js";
 
 const mapDispatchToProps = (dispatch) => {
 	return {
+        loadAllProjects: () => {
+            axios.get('projects').then((res) => {
+                dispatch(loadAllProjects(res.data.data));
+            })
+        },
 		closeAlert : () => {
 			console.log("Close alert");
 			dispatch(closeAlert());

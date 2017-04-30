@@ -3,6 +3,7 @@
  */
 import React, {Component} from "react";
 import {Link, Route} from "react-router-dom";
+import "./style.css";
 
 class InProject extends Component{
 	render() {
@@ -23,7 +24,27 @@ class InProject extends Component{
 					Tasks
 				</a>
 				<div className="dropdown-menu" aria-labelledby="taskDropdown">
-					<Link className="dropdown-item" to="/tasks">View Tasks By Project</Link>
+					{/*<Link className="dropdown-item" to="/tasks">View Tasks By Project</Link>*/}
+					<li className="dropdown-item dropdown-submenu">
+						<i className="fa fa-fw fa-git"></i>&nbsp; View Tasks By Project
+						<ul className="dropdown-menu">
+							<li>
+								<a href="#" className="dropdown-item interaction" data-module="git" data-action="status">
+									<i className="fa fa-fw fa-flag"></i>&nbsp; status
+								</a>
+							</li>
+							<li>
+								<a href="#" className="dropdown-item interaction" data-module="git" data-action="compare">
+									<i className="fa fa-fw fa-files-o"></i>&nbsp; compare
+								</a>
+							</li>
+							<li>
+								<a href="#" className="dropdown-item">
+									<i className="fa fa-fw fa-cloud-download"></i>&nbsp; pull
+								</a>
+							</li>
+						</ul>
+					</li>
 					<Link className="dropdown-item" to="/tasks/new">New Task</Link>
 				</div>
 			</li>

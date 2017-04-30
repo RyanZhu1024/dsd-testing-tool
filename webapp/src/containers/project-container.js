@@ -4,7 +4,7 @@
 import {connect} from "react-redux";
 import ProjectIndex from "../components/projects/project-index";
 import {axios} from "../components/helpers.js";
-import {createProject, deleteProject, deSelectProject, loadAllProjects, selectProject, updateProject} from "../actions";
+import {createProject, deleteProject, deSelectProject, selectProject, updateProject} from "../actions";
 
 
 const mapStateToProps = (state) => {
@@ -16,11 +16,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        loadAllProjects: () => {
-            axios.get('projects').then((res) => {
-                dispatch(loadAllProjects(res.data.data));
-            })
-        },
         selectProject: (projectId) => {
             console.log(`select the project with id: ${projectId}`);
             // localStorage.setItem("projectId", projectId);

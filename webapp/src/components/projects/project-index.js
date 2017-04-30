@@ -7,9 +7,6 @@ import ProjectList from "./project-list";
 import ProjectForm from "./project-form";
 
 export default class ProjectIndex extends Component{
-    componentWillMount() {
-        this.props.loadAllProjects();
-    }
     render() {
         let props = this.props;
         return <Switch>
