@@ -5,6 +5,31 @@ import React, {Component} from "react";
 import {Link, Route} from "react-router-dom";
 import "./style.css";
 
+const subMenu = () => {
+	return <div className="dropdown-item dropdown-submenu">
+		<a tabIndex="-1" href="#">
+			<i className="fa fa-fw fa-git"></i>&nbsp; Git
+		</a>
+		<ul className="dropdown-menu">
+			<li>
+				<a href="#" className="dropdown-item interaction" data-module="git" data-action="status">
+					<i className="fa fa-fw fa-flag"></i>&nbsp; status
+				</a>
+			</li>
+			<li>
+				<a href="#" className="dropdown-item interaction" data-module="git" data-action="compare">
+					<i className="fa fa-fw fa-files-o"></i>&nbsp; compare
+				</a>
+			</li>
+			<li>
+				<a href="#" className="dropdown-item">
+					<i className="fa fa-fw fa-cloud-download"></i>&nbsp; pull
+				</a>
+			</li>
+		</ul>
+	</div>
+};
+
 class InProject extends Component{
 	render() {
 		console.log(this.props.projects);
@@ -25,26 +50,7 @@ class InProject extends Component{
 				</a>
 				<div className="dropdown-menu" aria-labelledby="taskDropdown">
 					{/*<Link className="dropdown-item" to="/tasks">View Tasks By Project</Link>*/}
-					<li className="dropdown-item dropdown-submenu">
-						<i className="fa fa-fw fa-git"></i>&nbsp; View Tasks By Project
-						<ul className="dropdown-menu">
-							<li>
-								<a href="#" className="dropdown-item interaction" data-module="git" data-action="status">
-									<i className="fa fa-fw fa-flag"></i>&nbsp; status
-								</a>
-							</li>
-							<li>
-								<a href="#" className="dropdown-item interaction" data-module="git" data-action="compare">
-									<i className="fa fa-fw fa-files-o"></i>&nbsp; compare
-								</a>
-							</li>
-							<li>
-								<a href="#" className="dropdown-item">
-									<i className="fa fa-fw fa-cloud-download"></i>&nbsp; pull
-								</a>
-							</li>
-						</ul>
-					</li>
+					{subMenu()}
 					<Link className="dropdown-item" to="/tasks/new">New Task</Link>
 				</div>
 			</li>
@@ -54,7 +60,8 @@ class InProject extends Component{
 					Actions
 				</a>
 				<div className="dropdown-menu" aria-labelledby="actionDropdown">
-					<Link className="dropdown-item" to="/actions">View Actions By Project</Link>
+					{/*<Link className="dropdown-item" to="/actions">View Actions By Project</Link>*/}
+                    {subMenu()}
 					<Link className="dropdown-item" to="/actions/new">New Action</Link>
 				</div>
 			</li>
@@ -64,7 +71,8 @@ class InProject extends Component{
 					Nodes
 				</a>
 				<div className="dropdown-menu" aria-labelledby="actionDropdown">
-					<Link className="dropdown-item" to="/nodes">View Nodes By Project</Link>
+					{/*<Link className="dropdown-item" to="/nodes">View Nodes By Project</Link>*/}
+                    {subMenu()}
 				</div>
 			</li>
 		</ul>
