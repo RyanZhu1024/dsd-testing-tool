@@ -205,6 +205,12 @@ app.param('actionId', (req, res, next, actionId) => {
   next();
 });
 
+app.param('projectId', (req, res, next, projectId) => {
+  req.projectRef = database.ref(`projects/${projectId}`);
+  req.projectId = projectId;
+  next();
+});
+
 app.get('/api/v1/actions/:actionId', (req, res) => {
   req.actionRef.once('value').then((snapshot) => {
     let action = snapshot.val();
@@ -554,5 +560,48 @@ const handleTaskRes = (responses, task, scope) => {
     completedAt: moment().format('MMMM Do YYYY, h:mm:ss a'),
   });
 };
+
+app.get('/api/v1/projects', (req, res) => {
+  database.ref('projects').once('value', (snapshot) => {
+    let projects = [];
+    snapshot.forEach((child) => {
+      console.log(`${child.key}`);
+      if (!child.val().deleted) {
+        let project = child.val();
+        projects.push(Object.assign({}, project, {id: child.key}))
+      }
+    });
+    res.json({
+      success: 'ok',
+      data: projects
+    });
+  })
+});
+
+app.post('/api/v1/projects', (req, res) => {
+  let project = database.ref('projects').push();
+  req.body.createdAt = moment().format('MMMM Do YYYY, h:mm:ss a');
+  project.set(req.body).then(() => {
+    req.body.id = project.key;
+    res.json({success: 'ok', data: req.body});
+  })
+});
+
+app.put('/api/v1/projects/:projectId', (req, res) => {
+  console.log("update project" + JSON.stringify(req.body));
+  req.body.modifiedAt = moment().format('MMMM Do YYYY, h:mm:ss a');
+  req.projectRef.update(req.body).then(() => {
+    res.json({success: 'ok'})
+  })
+});
+
+app.delete('/api/v1/projects/:projectId', (req, res) => {
+  req.projectRef.update({
+    modifiedAt: moment().format('MMMM Do YYYY, h:mm:ss a'),
+    deleted: true
+  }).then(() => {
+    res.json({success: 'ok'})
+  })
+});
 
 app.listen(4000);

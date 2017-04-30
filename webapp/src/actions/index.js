@@ -118,3 +118,44 @@ export const getTasksById = (task) => {
         task
     }
 };
+
+export const loadAllProjects = (projects) => {
+	return {
+		type: 'LOAD_ALL_PROJECTS',
+		projects
+	}
+};
+
+export const selectProject = (projectId) => {
+	return {
+		type: 'SELECT_PROJECT',
+		projectId
+	}
+};
+
+export const createProject = (project) => {
+	return {
+		type: 'CREATE_PROJECT',
+		project
+	}
+};
+
+export const updateProject =(project) => {
+	return {
+		type: 'UPDATE_PROJECT',
+		project
+	}
+};
+
+export const deleteProject = (id) => {
+	return {
+		type: 'DELETE_PROJECT',
+		id
+	}
+};
+
+export const deSelectProject = () => {
+	return {
+		type: 'DESELECT_PROJECT'
+	}
+};

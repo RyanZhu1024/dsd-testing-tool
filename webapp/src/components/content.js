@@ -4,12 +4,12 @@
 import React from "react";
 import {Route, Switch} from "react-router-dom";
 import TaskDetail from "./tasks/task-detail";
-import NodeDetail from './nodes/node-detail';
+import NodeDetail from "./nodes/node-detail";
 import ActionForm from "./actions/action-form";
 import TaskForm from "./tasks/task-form";
-import AlertComponent from './alert-component';
-import TaskActionsResults from './tasks/task-actions-results';
-import TaskVerifyResults from './tasks/task-verify-results';
+import AlertComponent from "./alert-component";
+import TaskActionsResults from "./tasks/task-actions-results";
+import TaskVerifyResults from "./tasks/task-verify-results";
 
 const renderActionForm = (match,props) => {
 	const obj = props.actions.find((act) => act.id === match.params.id);
@@ -51,13 +51,13 @@ export default (props) => {
 				<Route path="/actions" exact={true}
 				       render={() => <h3>Select an action from left to view</h3> } />
 				<Route path="/tasks/new" exact={true}
-				       render={() => <TaskForm initialValues={initialTask(undefined)}
-				                               onSubmit={(form) => props.createTask(form, props.history)}
+				       render={({history}) => <TaskForm initialValues={initialTask(undefined)}
+				                               onSubmit={(form) => props.createTask(form, history)}
 				                               {...props} />}
 				/>
 				<Route path="/actions/new" exact={true}
-				       render={() => <ActionForm initialValues={{repeat: 1, delay: 0}}
-				                                 onSubmit={(form) => props.createAction(form, props.history)}
+				       render={({history}) => <ActionForm initialValues={{repeat: 1, delay: 0}}
+				                                 onSubmit={(form) => props.createAction(form, history)}
 				                                 {...props} />}
 				/>
 				<Route path="/tasks/:id/edit"
