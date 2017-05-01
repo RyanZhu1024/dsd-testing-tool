@@ -52,6 +52,11 @@ const formComponent = (props) => {
 		       component={renderSelect} name="way" label="Way To Run"
 		       multiple={false} options={[{key: 1, value: "Concurrently"}, {key: 2, value: "Sequentially"}]} />
 
+
+		<Field validate={(value) => value ? undefined : "Project Id Can't be empty"} className="form-control"
+			   component={renderSelect} name="projectId" label="Project Id"
+			   multiple={false} options={props.projects.map((project) => {return {key: project.id, value: project.name}})} />
+
 		<Field validate={(value) => value ? undefined : "Actions Can't be empty"} className="form-control"
 		       component={renderMultiSelect} name="actions" label="Actions"
 		       options={actionOptions.map(act => {act.display = act.name; return act;})} />
@@ -77,11 +82,11 @@ class TaskForm extends Component {
 	}
 
 	render () {
-		const {submitting, pristine, handleSubmit, actionOptions, nodes} = this.props;
+		const {submitting, pristine, handleSubmit, actionOptions, nodes, projects} = this.props;
 		return <form onSubmit={handleSubmit}>
 			<Fields names={[
-				'name', 'way', 'actions', 'killProcess', 'verifyActions'
-			]} actionOptions={actionOptions} nodes={nodes} component={formComponent}/>
+				'name', 'way', 'actions', 'killProcess', 'verifyActions', 'projectId'
+			]} actionOptions={actionOptions} nodes={nodes} component={formComponent} projects={projects}/>
 			<Switch>
 				<Route path="/tasks/new" exact={true} render={() => <button type="submit" disabled={submitting || pristine} className="btn btn-primary">Create</button>}/>
 				<Route path="/tasks/:id/edit" render={({match}) => <ButtonGroup id={match.params.id} {...this.props}/>}/>

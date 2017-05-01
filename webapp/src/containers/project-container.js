@@ -33,7 +33,8 @@ const mapDispatchToProps = (dispatch) => {
         changeProject: (form) => {
             console.log(`change Project ${JSON.stringify(form)}`);
             const {id, ...toUpdate} = form;
-            return axios.put(`projects/${id}`, toUpdate).then(() => {
+            return axios.put(`projects/${id}`, toUpdate).then((res) => {
+                console.log(`update project ${res.data.success}`);
                 dispatch(updateProject(form));
             })
         },

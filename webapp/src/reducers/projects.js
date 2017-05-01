@@ -5,7 +5,7 @@ const project = (state={}, action) => {
     switch (action.type) {
         case 'CREATE_PROJECT':
             return action.project;
-        case 'UPDATE_TASK':
+        case 'UPDATE_PROJECT':
             if (state.id !== action.project.id) {
                 return state;
             } else {

@@ -28,7 +28,12 @@ const tasks = (state = [], action) => {
 		case 'DELETE_TASK':
 			return state.filter(task => task.id !== action.id);
 		case 'UPDATE_TASK':
-			return state.map(t => task(t, action));
+			let tempTask = state.filter(task => task.id !== action.task.id)[0];
+			if (tempTask.projectId !== action.task.projectId) {
+                return state.filter(task => task.id !== action.task.id);
+			} else {
+                return state.map(t => task(t, action));
+            }
 		default:
 			return state;
 	}

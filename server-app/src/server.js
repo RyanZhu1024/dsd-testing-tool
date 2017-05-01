@@ -14,6 +14,7 @@ const TaskResScope = {
 
 
 let app = Express();
+let currentProjectId;
 
 let config = {
   apiKey: "AIzaSyAxcZJyF6UL9DeDKNdZxUsEpaq3970F-HY",
@@ -98,8 +99,10 @@ app.get('/api/v1/nodes', (req, res) => {
   database.ref('nodes').once('value', (snapshot) => {
     let nodes = [];
     snapshot.forEach((child) => {
-      console.log(`Node Id: ${child.key}`);
-      nodes.push(Object.assign({}, child.val(), {id: child.key}))
+      if (child.val().projectId === currentProjectId) {
+        console.log(`Node Id: ${child.key}`);
+        nodes.push(Object.assign({}, child.val(), {id: child.key}))
+      }
     });
     console.log(`Nodes: ${JSON.stringify(nodes)}`);
     res.json({
@@ -283,7 +286,7 @@ app.get('/api/v1/tasks', (req, res) => {
     let tasks = [];
     snapshot.forEach((child) => {
       console.log(`${child.key}`);
-      if (!child.val().deleted) {
+      if (!child.val().deleted && child.val().projectId === currentProjectId) {
         tasks.push({
           id: child.key,
           way: child.val().way,
@@ -601,6 +604,16 @@ app.delete('/api/v1/projects/:projectId', (req, res) => {
     deleted: true
   }).then(() => {
     res.json({success: 'ok'})
+  })
+});
+
+
+app.get('/api/v1/currentProject/:projectId',(req, res) => {
+  req.projectRef.once('value').then((snapshot) => {
+    currentProjectId = snapshot.key;
+    console.log(`project id: ${currentProjectId}`);
+  }).then(() => {
+    res.json({success: 'ok'});
   })
 });
 
